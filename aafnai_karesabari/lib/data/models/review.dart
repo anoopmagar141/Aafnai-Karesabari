@@ -1,0 +1,1 @@
+class Review { const Review({required this.id, required this.orderId, required this.consumerId, required this.farmerId, required this.rating, required this.createdAt, this.comment}); final String id, orderId, consumerId, farmerId; final int rating; final String? comment; final DateTime createdAt; }

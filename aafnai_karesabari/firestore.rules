@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owns(field) { return signedIn() && request.auth.uid == field; }
+    match /users/{userId} { allow read, create, update: if owns(userId); }
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.farmer_id == request.auth.uid;
+      allow update, delete: if owns(resource.data.farmer_id);
+    }
+    match /orders/{orderId} {
+      allow read: if signedIn() && (owns(resource.data.farmer_id) || owns(resource.data.consumer_id));
+      // Orders and their commission/payout must be created or mutated by Cloud Functions only.
+      allow write: if false;
+    }
+    match /reviews/{reviewId} { allow read: if true; allow write: if false; }
+    match /price_history/{priceId} { allow read: if true; allow write: if false; }
+    match /notifications/{notificationId} { allow read: if owns(resource.data.user_id); allow write: if false; }
+  }
+}

@@ -1,0 +1,4 @@
+import 'package:flutter/material.dart';
+import 'primary_button.dart';
+class ReviewInput extends StatefulWidget { const ReviewInput({super.key, this.onSubmit}); final VoidCallback? onSubmit; @override State<ReviewInput> createState() => _ReviewInputState(); }
+class _ReviewInputState extends State<ReviewInput> { int rating = 0; @override Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: List.generate(5, (i) => IconButton(onPressed: () => setState(() => rating = i + 1), icon: Icon(i < rating ? Icons.star : Icons.star_border, color: Colors.amber)))), const TextField(maxLines: 3, decoration: InputDecoration(hintText: 'Leave a comment', border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)))), const SizedBox(height: 12), PrimaryButton(label: 'Submit review', onPressed: widget.onSubmit)]); }
