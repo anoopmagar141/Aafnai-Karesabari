@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hamro_karesabari/data/models/listing.dart';
-import 'package:hamro_karesabari/data/repositories/listing_repository.dart';
-import 'package:hamro_karesabari/data/services/listing_service.dart';
+import 'package:aafnai_karesabari/data/models/listing.dart';
+import 'package:aafnai_karesabari/data/repositories/listing_repository.dart';
+import 'package:aafnai_karesabari/data/services/listing_service.dart';
 
 void main() {
   late LocalListingRepository repository;

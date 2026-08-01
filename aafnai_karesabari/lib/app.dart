@@ -4,13 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'routing/app_router.dart';
 
-class HamroKaresabariApp extends StatelessWidget {
-  const HamroKaresabariApp({super.key});
+class AafnaiKaresabariApp extends StatelessWidget {
+  const AafnaiKaresabariApp({super.key});
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Hamro Karesabari',
+        title: 'Aafnai Karesabari',
         theme: AppTheme.light,
         routerConfig: appRouter,
         supportedLocales: const [Locale('en'), Locale('ne')],

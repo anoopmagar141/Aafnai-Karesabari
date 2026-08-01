@@ -12,7 +12,7 @@ Future<void> main() async {
   await FirebaseBootstrap.initialize();
 
   final container = ProviderContainer();
-  runApp(UncontrolledProviderScope(container: container, child: const HamroKaresabariApp()));
+  runApp(UncontrolledProviderScope(container: container, child: const AafnaiKaresabariApp()));
 
   unawaited(container.read(notificationServiceProvider).registerFirebaseListeners());
 }

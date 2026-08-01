@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hamro_karesabari/core/errors/app_exception.dart';
-import 'package:hamro_karesabari/data/services/listing_image_storage_service.dart';
+import 'package:aafnai_karesabari/core/errors/app_exception.dart';
+import 'package:aafnai_karesabari/data/services/listing_image_storage_service.dart';
 
 void main() {
   late LocalListingImageStorageService service;

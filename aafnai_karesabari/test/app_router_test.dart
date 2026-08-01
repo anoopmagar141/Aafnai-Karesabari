@@ -1,8 +1,8 @@
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:hamro_karesabari/data/models/app_user.dart';
-import 'package:hamro_karesabari/data/repositories/user_repository.dart';
-import 'package:hamro_karesabari/features/onboarding/onboarding_controller.dart';
-import 'package:hamro_karesabari/routing/app_routes.dart';
+import 'package:aafnai_karesabari/data/models/app_user.dart';
+import 'package:aafnai_karesabari/data/repositories/user_repository.dart';
+import 'package:aafnai_karesabari/features/onboarding/onboarding_controller.dart';
+import 'package:aafnai_karesabari/routing/app_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeUserRepository implements UserRepository {

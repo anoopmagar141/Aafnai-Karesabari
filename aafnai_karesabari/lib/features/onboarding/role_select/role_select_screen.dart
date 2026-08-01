@@ -10,7 +10,7 @@ class RoleSelectScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('How will you use Hamro Karesabari?')),
+      appBar: AppBar(title: const Text('How will you use Aafnai Karesabari?')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

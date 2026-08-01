@@ -14,7 +14,7 @@ class SecureCartRepository implements CartRepository {
   SecureCartRepository({FlutterSecureStorage? storage})
       : _storage = storage ?? const FlutterSecureStorage();
 
-  static const _cartKey = 'hamro_karesabari_cart';
+  static const _cartKey = 'aafnai_karesabari_cart';
   final FlutterSecureStorage _storage;
 
   @override

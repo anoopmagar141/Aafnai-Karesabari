@@ -114,7 +114,7 @@ class LocalNotificationRepository implements NotificationRepository {
   LocalNotificationRepository({NotificationStorage? storage})
       : _storage = storage ?? FlutterSecureNotificationStorage();
 
-  static const _storageKey = 'hamro_karesabari_notifications';
+  static const _storageKey = 'aafnai_karesabari_notifications';
   final NotificationStorage _storage;
   final Map<String, AppNotification> _notifications = {};
   bool _initialized = false;

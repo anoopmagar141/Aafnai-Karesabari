@@ -57,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 const Text(
-                    'Join Hamro Karesabari and start your onboarding journey.'),
+                    'Join Aafnai Karesabari and start your onboarding journey.'),
                 const SizedBox(height: 24),
                 AuthTextField(
                   label: 'Full name',
