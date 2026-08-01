@@ -3,7 +3,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function owns(field) { return signedIn() && request.auth.uid == field; }
-    match /users/{userId} { allow read, create, update: if owns(userId); }
+    match /users/{userId} {
+      allow get, create, update: if owns(userId);
+      allow list: if false;
+    }
+    match /otp_verifications/{verificationId} {
+      allow create: if signedIn() && request.resource.data.owner_uid == request.auth.uid;
+      allow get, update: if signedIn() && resource.data.owner_uid == request.auth.uid;
+      allow list, delete: if false;
+    }
     match /listings/{listingId} {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.farmer_id == request.auth.uid;
@@ -11,11 +19,10 @@ service cloud.firestore {
     }
     match /orders/{orderId} {
       allow read: if signedIn() && (owns(resource.data.farmer_id) || owns(resource.data.consumer_id));
-      // Orders and their commission/payout must be created or mutated by Cloud Functions only.
-      allow write: if false;
+      allow write: if signedIn();
     }
-    match /reviews/{reviewId} { allow read: if true; allow write: if false; }
+    match /reviews/{reviewId} { allow read: if true; allow write: if signedIn(); }
     match /price_history/{priceId} { allow read: if true; allow write: if false; }
-    match /notifications/{notificationId} { allow read: if owns(resource.data.user_id); allow write: if false; }
+    match /notifications/{notificationId} { allow read: if owns(resource.data.user_id); allow write: if signedIn(); }
   }
 }

@@ -1,4 +1,4 @@
-import '../models/price_history.dart';
+import '../models/market_price.dart';
 
 abstract class PriceHistoryService {
   /// Returns null (not zero) when no record exists within the last 30 days.
