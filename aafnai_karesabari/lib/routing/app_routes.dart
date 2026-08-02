@@ -23,19 +23,23 @@ String? resolveRedirectPath({
   required String path,
   required OnboardingController onboardingController,
 }) {
+  // Stay on splash until redirects are resolved
+  if (path == AppRoutes.splash) return null;
+
   final isAuthRoute = path == AppRoutes.login ||
       path == AppRoutes.register ||
       path == AppRoutes.forgotPassword;
 
-  if (path == AppRoutes.splash) return null;
+  // Unauthenticated users should be sent to login unless they are on an auth route
   if (onboardingController.authStatus == AuthStatus.unauthenticated) {
     return isAuthRoute ? null : AppRoutes.login;
   }
 
   // Prevent navigation while fetching profile data from Firestore
   if (onboardingController.isLoadingProfile) {
-    return null; // Stay on the current route (e.g., login screen) while loading
+    return null; // Stay on current route while loading
   }
+
   if (onboardingController.languageCode == null) {
     return path == AppRoutes.languageSelect ? null : AppRoutes.languageSelect;
   }
@@ -48,6 +52,7 @@ String? resolveRedirectPath({
         : AppRoutes.consumerSetup;
     return path == setup ? null : setup;
   }
+
   if (path == AppRoutes.languageSelect ||
       path == AppRoutes.roleSelect ||
       path == AppRoutes.login ||
@@ -59,5 +64,6 @@ String? resolveRedirectPath({
         ? AppRoutes.farmerHome
         : AppRoutes.consumerHome;
   }
+
   return null;
 }

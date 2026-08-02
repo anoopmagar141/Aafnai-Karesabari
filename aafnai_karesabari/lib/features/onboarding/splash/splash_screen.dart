@@ -1,35 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/colors.dart';
-import '../../../routing/app_router.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
+
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.go(AppRoutes.languageSelect);
-    });
+    // No manual navigation; global redirect handles routing
   }
 
   @override
   Widget build(BuildContext context) => const Scaffold(
         body: SafeArea(
           child: Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.eco_rounded, color: AppColors.primary, size: 96),
-              SizedBox(height: 20),
-              Text('Aafnai Karesabari', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AppColors.primary)),
-              SizedBox(height: 8),
-              Text('मेरो करेसाबारी\nFrom local farms to your home', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted, fontSize: 16)),
-            ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.eco_rounded, color: AppColors.primary, size: 96),
+                SizedBox(height: 20),
+                Text(
+                  'Aafnai Karesabari',
+                  style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'आफ्नै करेसाबारी\nFrom local farms to your home',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 16),
+                ),
+              ],
+            ),
           ),
         ),
       );

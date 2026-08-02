@@ -144,7 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         createdAt: DateTime.now(),
         profileCompleted: false,
       ));
-      onboardingController.authenticate(_emailController.text.trim());
+      await onboardingController.syncWithAuthState(user);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account created successfully.')));

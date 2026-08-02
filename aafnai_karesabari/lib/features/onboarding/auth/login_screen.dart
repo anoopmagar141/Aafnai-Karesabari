@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await _tokenStore.saveSessionToken(token);
       }
 
-      onboardingController.authenticate(user.email ?? email);
+      await onboardingController.syncWithAuthState(user);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Signed in successfully.')));

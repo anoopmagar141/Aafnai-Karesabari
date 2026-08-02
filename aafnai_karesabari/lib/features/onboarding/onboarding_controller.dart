@@ -20,7 +20,7 @@ class OnboardingController extends ChangeNotifier {
         _userRepository = userRepository ?? FirestoreUserRepository() {
     if (subscribeToAuthChanges) {
       _auth.authStateChanges().listen((user) {
-        unawaited(_syncWithAuthState(user));
+        unawaited(syncWithAuthState(user));
       });
     }
   }
@@ -38,13 +38,19 @@ class OnboardingController extends ChangeNotifier {
   bool get isComplete =>
       authStatus == AuthStatus.authenticated && profileComplete;
 
-  Future<void> _syncWithAuthState(User? user) async {
+  bool _isSyncing = false;
+
+  Future<void> syncWithAuthState(User? user) async {
+    if (_isSyncing) return;
+    _isSyncing = true;
+    
     if (user == null) {
       authStatus = AuthStatus.unauthenticated;
       email = null;
       profileComplete = false;
       role = null;
       languageCode = null;
+      _isSyncing = false;
       notifyListeners();
       return;
     }
@@ -55,10 +61,11 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final profile = await _userRepository.read(user.uid);
+      final profile = await _userRepository.read(user.uid).timeout(const Duration(seconds: 5), onTimeout: () => null);
       
       if (profile != null) {
-        profileComplete = profile.profileCompleted;
+        // Consider profile complete if the flag is true OR essential fields are present
+        profileComplete = profile.profileCompleted || (profile.name.isNotEmpty && profile.location != null);
         role = profile.role == UserRole.farmer
             ? SelectedRole.farmer
             : SelectedRole.consumer;
@@ -72,6 +79,7 @@ class OnboardingController extends ChangeNotifier {
       profileComplete = false;
     } finally {
       isLoadingProfile = false;
+      _isSyncing = false;
       notifyListeners();
     }
   }
@@ -84,13 +92,6 @@ class OnboardingController extends ChangeNotifier {
   void selectRole(SelectedRole value) {
     role = value;
     notifyListeners();
-  }
-
-  void authenticate(String userEmail) {
-    email = userEmail;
-    authStatus = AuthStatus.authenticated;
-    // Do NOT notifyListeners here because _syncWithAuthState will handle the profile fetching and notification.
-    // This avoids premature redirection to profile setup before the profile is actually loaded.
   }
 
   void signOut() {
