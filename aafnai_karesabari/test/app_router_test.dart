@@ -53,6 +53,17 @@ void main() {
       expect(redirect, AppRoutes.login);
     });
 
+    test('allows the landing route for unauthenticated users', () {
+      final controller = createTestOnboardingController();
+
+      final redirect = resolveRedirectPath(
+        path: AppRoutes.landing,
+        onboardingController: controller,
+      );
+
+      expect(redirect, isNull);
+    });
+
     test('allows the login route for unauthenticated users', () {
       final controller = createTestOnboardingController();
       controller.selectLanguage('en');

@@ -1,6 +1,7 @@
 import '../features/onboarding/onboarding_controller.dart';
 
 abstract final class AppRoutes {
+  static const landing = '/';
   static const splash = '/splash';
   static const languageSelect = '/language-select';
   static const roleSelect = '/role-select';
@@ -23,8 +24,8 @@ String? resolveRedirectPath({
   required String path,
   required OnboardingController onboardingController,
 }) {
-  // Stay on splash until redirects are resolved
-  if (path == AppRoutes.splash) return null;
+  // Keep the landing screen visible until the user chooses to continue.
+  if (path == AppRoutes.landing || path == AppRoutes.splash) return null;
 
   final isAuthRoute = path == AppRoutes.login ||
       path == AppRoutes.register ||
@@ -47,10 +48,17 @@ String? resolveRedirectPath({
     return path == AppRoutes.roleSelect ? null : AppRoutes.roleSelect;
   }
   if (!onboardingController.profileComplete) {
+    final isSetupRoute = path == AppRoutes.farmerSetup || path == AppRoutes.consumerSetup;
+    if (isSetupRoute) return null;
+
     final setup = onboardingController.role == SelectedRole.farmer
         ? AppRoutes.farmerSetup
         : AppRoutes.consumerSetup;
-    return path == setup ? null : setup;
+
+    // Allow signed-in users to continue to the main app even before profile setup is complete.
+    return onboardingController.authStatus == AuthStatus.authenticated
+        ? null
+        : (path == setup ? null : setup);
   }
 
   if (path == AppRoutes.languageSelect ||

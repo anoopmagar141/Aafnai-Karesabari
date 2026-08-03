@@ -36,15 +36,15 @@ export 'app_routes.dart';
 GoRouter? _appRouter;
 
 GoRouter get appRouter => _appRouter ??= GoRouter(
-  initialLocation: AppRoutes.splash,
+  initialLocation: AppRoutes.landing,
   refreshListenable: onboardingController,
   redirect: (_, state) => resolveRedirectPath(
     path: state.uri.path,
     onboardingController: onboardingController,
   ),
   routes: [
-    GoRoute(path: '/', redirect: (_, __) => AppRoutes.splash),
-    GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
+    GoRoute(path: AppRoutes.landing, builder: (_, __) => const SplashScreen()),
+    GoRoute(path: AppRoutes.splash, redirect: (_, __) => AppRoutes.landing),
     GoRoute(
         path: AppRoutes.languageSelect,
         builder: (_, __) => const LanguageSelectScreen()),
