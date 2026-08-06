@@ -32,7 +32,7 @@ void main() {
       final repository = LocalUserRepository();
       final user = AppUser(
         id: 'user-1',
-        role: UserRole.consumer,
+      
         name: 'Sita',
         phone: '9800000000',
         language: AppLanguage.ne,

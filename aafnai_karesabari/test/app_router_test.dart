@@ -43,7 +43,7 @@ void main() {
     test('redirects unauthenticated users to login', () {
       final controller = createTestOnboardingController();
       controller.selectLanguage('en');
-      controller.selectRole(SelectedRole.consumer);
+      // Role selection removed; no longer needed
 
       final redirect = resolveRedirectPath(
         path: AppRoutes.consumerSetup,
@@ -67,7 +67,7 @@ void main() {
     test('allows the login route for unauthenticated users', () {
       final controller = createTestOnboardingController();
       controller.selectLanguage('en');
-      controller.selectRole(SelectedRole.consumer);
+      // Role selection removed; no longer needed
 
       final redirect = resolveRedirectPath(
         path: AppRoutes.login,
@@ -75,6 +75,21 @@ void main() {
       );
 
       expect(redirect, isNull);
+    });
+
+    test('redirects authenticated users off login when profile is incomplete', () {
+      final controller = createTestOnboardingController();
+      controller.authStatus = AuthStatus.authenticated;
+      controller.selectLanguage('en');
+      // role selection removed (no longer needed)
+      controller.profileComplete = false;
+
+      final redirect = resolveRedirectPath(
+        path: AppRoutes.login,
+        onboardingController: controller,
+      );
+
+      expect(redirect, AppRoutes.consumerHome);
     });
   });
 }

@@ -21,7 +21,7 @@ class LanguageSelectScreen extends StatelessWidget {
                 label: 'नेपाली',
                 onPressed: () {
                   onboardingController.selectLanguage('ne');
-                  context.go(AppRoutes.roleSelect);
+                  context.go(AppRoutes.login);
                 },
               ),
               const SizedBox(height: 16),
@@ -29,7 +29,7 @@ class LanguageSelectScreen extends StatelessWidget {
                 label: 'English',
                 onPressed: () {
                   onboardingController.selectLanguage('en');
-                  context.go(AppRoutes.roleSelect);
+                  context.go(AppRoutes.login);
                 },
               ),
               const Spacer(),

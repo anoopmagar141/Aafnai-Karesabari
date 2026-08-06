@@ -135,7 +135,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
       await _users.save(AppUser(
         id: user.uid,
-        role: UserRole.consumer,
         name: _fullNameController.text.trim(),
         phone: '',
         language: AppLanguage.en,
@@ -143,6 +142,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         location: null,
         createdAt: DateTime.now(),
         profileCompleted: false,
+        isSeller: false,
+        sellerVerified: false,
       ));
       await onboardingController.syncWithAuthState(user);
       if (!mounted) return;

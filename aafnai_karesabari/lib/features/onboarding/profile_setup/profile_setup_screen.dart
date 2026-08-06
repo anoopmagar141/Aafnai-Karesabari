@@ -9,8 +9,7 @@ import '../../../shared/components/primary_button.dart';
 import '../onboarding_controller.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key, required this.role});
-  final SelectedRole role;
+  const ProfileSetupScreen({super.key});
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
 }
@@ -33,20 +32,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final farmer = widget.role == SelectedRole.farmer;
     return Scaffold(
       appBar: AppBar(
-          title: Text(farmer ? 'Set up your farm' : 'Set up your profile')),
+          title: const Text('Set up your profile')),
       body: SafeArea(
         child: Form(
           key: _formKey,
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                   radius: 42,
-                  child: Icon(farmer ? Icons.agriculture : Icons.person,
-                      size: 40)),
+                  child: Icon(Icons.person, size: 40)),
               const SizedBox(height: 24),
               TextFormField(
                   controller: _nameController,
@@ -57,8 +54,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               TextFormField(
                 controller: _locationController,
                 enabled: !_saving,
-                decoration: InputDecoration(
-                    labelText: farmer ? 'Farm district' : 'Delivery address'),
+                decoration: const InputDecoration(
+                    labelText: 'Delivery address'),
                 validator: _required,
               ),
               if (_error != null) ...[
@@ -92,9 +89,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     try {
       final baseUser = AppUser(
         id: firebaseUser.uid,
-        role: widget.role == SelectedRole.farmer
-            ? UserRole.farmer
-            : UserRole.consumer,
         name: _nameController.text.trim(),
         phone: firebaseUser.phoneNumber ?? '',
         language: onboardingController.languageCode == 'ne'
@@ -104,32 +98,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         location: _locationController.text.trim(),
         createdAt: DateTime.now(),
         profileCompleted: true,
+        isSeller: false,
+        sellerVerified: false,
       );
 
-      AppUser userToSave = baseUser;
-      if (widget.role == SelectedRole.farmer) {
-        userToSave = FarmerProfile(
-          id: baseUser.id,
-          name: baseUser.name,
-          phone: baseUser.phone,
-          language: baseUser.language,
-          email: baseUser.email,
-          createdAt: baseUser.createdAt,
-          farmLocation: _locationController.text.trim(),
-          harvestDate: null,
-          trustBadge: TrustBadgeType.newSeller,
-          ordersCompletedCount: 0,
-          isPremium: false,
-          profileCompleted: true,
-        );
-      }
-
-      await _users.save(userToSave);
+      await _users.save(baseUser);
       onboardingController.completeProfile();
       if (!mounted) return;
-      context.go(widget.role == SelectedRole.farmer
-          ? AppRoutes.farmerHome
-          : AppRoutes.consumerHome);
+      context.go(AppRoutes.consumerHome);
     } catch (_) {
       _showError(
           'Could not save your profile. Check your connection and try again.');

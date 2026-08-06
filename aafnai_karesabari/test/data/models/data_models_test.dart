@@ -15,7 +15,6 @@ void main() {
     test('serializes and deserializes with Firestore timestamps', () {
       final user = AppUser(
         id: 'user-1',
-        role: UserRole.consumer,
         name: 'Sita',
         phone: '9800000000',
         language: AppLanguage.ne,
@@ -27,7 +26,7 @@ void main() {
       );
 
       final map = user.toFirestore();
-      expect(map['role'], 'consumer');
+      
       expect(map['created_at'], isA<Timestamp>());
 
       final restored = AppUser.fromMap(
@@ -37,15 +36,15 @@ void main() {
     });
 
     test('copyWith and equality work', () {
-      final user = AppUser(
-        id: 'user-1',
-        role: UserRole.farmer,
-        name: 'Hari',
-        phone: '9800000001',
-        language: AppLanguage.en,
-        email: 'hari@example.com',
-        createdAt: createdAt,
-      );
+        final user = AppUser(
+          id: 'user-1',
+          name: 'Hari',
+          phone: '9800000001',
+          language: AppLanguage.en,
+          email: 'hari@example.com',
+          createdAt: createdAt,
+          isSeller: true,
+        );
       final updated = user.copyWith(name: 'Hari Thapa');
       expect(updated.name, 'Hari Thapa');
       expect(updated, isNot(user));

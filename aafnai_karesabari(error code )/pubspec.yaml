@@ -1,0 +1,36 @@
+name: aafnai_karesabari
+description: A local marketplace connecting Nepali farmers directly with buyers.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.3.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  go_router: ^14.2.7
+  intl: ^0.20.2
+  flutter_secure_storage: ^9.2.4
+  cached_network_image: ^3.4.1
+  image_picker: ^1.1.2
+  google_fonts: ^8.2.0
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  cloud_firestore: ^5.6.5
+  firebase_storage: ^12.4.4
+  firebase_messaging: ^15.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  firebase_auth_mocks: ^0.14.1
+  firebase_core_platform_interface: ^5.4.0
+
+flutter:
+  uses-material-design: true
+  generate: true

@@ -42,10 +42,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyAJHaX38Ithzjrpnw2pYWXDpjYkFtj2Pes',
-    appId: '1:986107011501:web:89944c1254a8c93e990124',
+    appId: '1:986107011501:web:29478a09c3d59791990124',
     messagingSenderId: '986107011501',
     projectId: 'aafnai-karesabari',
     authDomain: 'aafnai-karesabari.firebaseapp.com',
+    databaseURL: 'https://aafnai-karesabari-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'aafnai-karesabari.firebasestorage.app',
   );
 
@@ -54,9 +55,9 @@ class DefaultFirebaseOptions {
     appId: '1:986107011501:android:8afc37424bca5d31990124',
     messagingSenderId: '986107011501',
     projectId: 'aafnai-karesabari',
+    databaseURL: 'https://aafnai-karesabari-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'aafnai-karesabari.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBJU3jxHCkTFmvxng9JqOzVvTEJMvk1gYE',
     appId: '1:986107011501:ios:8a91e32863d60ffb990124',

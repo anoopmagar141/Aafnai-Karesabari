@@ -22,7 +22,7 @@ import '../features/onboarding/auth/register_screen.dart';
 import '../features/onboarding/language_select/language_select_screen.dart';
 import '../features/onboarding/onboarding_controller.dart';
 import '../features/onboarding/profile_setup/profile_setup_screen.dart';
-import '../features/onboarding/role_select/role_select_screen.dart';
+
 import '../features/onboarding/splash/splash_screen.dart';
 import '../features/shared/notifications/notifications_screen.dart';
 import '../features/shared/orders/order_detail_screen.dart';
@@ -48,9 +48,6 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
     GoRoute(
         path: AppRoutes.languageSelect,
         builder: (_, __) => const LanguageSelectScreen()),
-    GoRoute(
-        path: AppRoutes.roleSelect,
-        builder: (_, __) => const RoleSelectScreen()),
     GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
     GoRoute(
         path: AppRoutes.register, builder: (_, __) => const RegisterScreen()),
@@ -58,13 +55,8 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
         path: AppRoutes.forgotPassword,
         builder: (_, __) => const ForgotPasswordScreen()),
     GoRoute(
-        path: AppRoutes.farmerSetup,
-        builder: (_, __) =>
-            const ProfileSetupScreen(role: SelectedRole.farmer)),
-    GoRoute(
         path: AppRoutes.consumerSetup,
-        builder: (_, __) =>
-            const ProfileSetupScreen(role: SelectedRole.consumer)),
+        builder: (_, __) => const ProfileSetupScreen()),
     ShellRoute(
         builder: (_, __, child) => _RoleShell(farmer: true, child: child),
         routes: [
