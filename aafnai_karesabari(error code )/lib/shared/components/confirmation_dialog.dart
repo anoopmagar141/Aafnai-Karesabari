@@ -1,3 +1,0 @@
-import 'package:flutter/material.dart';
-import '../../core/theme/colors.dart';
-class ConfirmationDialog extends StatelessWidget { const ConfirmationDialog({super.key, required this.title, required this.message, required this.onConfirm, this.destructive = false}); final String title, message; final VoidCallback onConfirm; final bool destructive; @override Widget build(BuildContext context) => AlertDialog(title: Text(title), content: Text(message), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')), FilledButton(style: FilledButton.styleFrom(backgroundColor: destructive ? AppColors.error : AppColors.primary), onPressed: onConfirm, child: const Text('Confirm'))]); }
