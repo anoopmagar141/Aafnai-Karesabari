@@ -45,6 +45,7 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
           IconButton(
             onPressed: () => context.go(AppRoutes.consumerHome),
             icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Switch to buyer view',
           ),
         ],
       ),
@@ -61,6 +62,82 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
           const Text('Here\'s your farm at a glance.', style: TextStyle(color: AppColors.textMuted)),
           const SizedBox(height: 20),
           const EarningsCard(summary: true),
+          const SizedBox(height: 24),
+          Text('Quick actions', style: AppTypography.sectionTitle),
+          const SizedBox(height: 12),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.6,
+            children: [
+              _buildQuickAction(
+                icon: Icons.list_alt,
+                label: 'Listings',
+                onPressed: () => context.go('/farmer/listings'),
+              ),
+              _buildQuickAction(
+                icon: Icons.shopping_bag,
+                label: 'Orders',
+                onPressed: () => context.go('/farmer/orders'),
+              ),
+              _buildQuickAction(
+                icon: Icons.trending_up,
+                label: 'Earnings',
+                onPressed: () => context.go('/farmer/earnings'),
+              ),
+              _buildQuickAction(
+                icon: Icons.person,
+                label: 'Profile',
+                onPressed: () => context.go('/settings'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          FutureBuilder<List<Listing>>(
+            future: _listingsFuture,
+            builder: (context, snapshot) {
+              final listings = snapshot.data ?? const [];
+              final activeCount =
+                  listings.where((l) => l.status == ListingStatus.active).length;
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info, color: Colors.blue.shade600),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Active Listings',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            activeCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 24),
           const Text('My listings', style: AppTypography.sectionTitle),
           FutureBuilder<List<Listing>>(
@@ -100,6 +177,31 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
               );
             }
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAction({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.all(12),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary, width: 1.5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 26),
+          const SizedBox(height: 6),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
     );

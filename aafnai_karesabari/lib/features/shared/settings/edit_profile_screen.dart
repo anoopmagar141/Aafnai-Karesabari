@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../data/models/app_user.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../../shared/components/primary_button.dart';
+import '../../onboarding/profile_setup/profile_setup_screen.dart' show kMinimumAge;
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -31,9 +33,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _businessHoursController = TextEditingController();
 
   AppUser? _user;
+  DateTime? _dateOfBirth;
   bool _isLoading = true;
   bool _isSaving = false;
   String? _error;
+  String? _dobError;
 
   String get _userId => FirebaseAuth.instance.currentUser?.uid ?? '';
 
@@ -60,6 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _businessDescriptionController.text = user.businessDescription ?? '';
         _farmAddressController.text = user.farmAddress ?? '';
         _businessHoursController.text = user.businessHours ?? '';
+        _dateOfBirth = user.dateOfBirth;
       }
     });
   }
@@ -79,8 +84,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  DateTime get _maxBirthDate {
+    final now = DateTime.now();
+    return DateTime(now.year - kMinimumAge, now.month, now.day);
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    final initial = _dateOfBirth ?? DateTime(now.year - 20, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      helpText: 'Select date of birth',
+      initialDate: initial.isAfter(_maxBirthDate) ? _maxBirthDate : initial,
+      firstDate: DateTime(now.year - 100),
+      lastDate: _maxBirthDate,
+    );
+    if (picked != null) {
+      setState(() {
+        _dateOfBirth = picked;
+        _dobError = null;
+      });
+    }
+  }
+
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate() || _user == null) return;
+    final formValid = _formKey.currentState!.validate();
+    setState(() {
+      _dobError = _dateOfBirth == null ? 'Please select your date of birth' : null;
+    });
+    if (!formValid || _user == null || _dateOfBirth == null) return;
+
+    if (_dateOfBirth!.isAfter(_maxBirthDate)) {
+      setState(() => _dobError = 'You must be at least $kMinimumAge years old to use this app.');
+      return;
+    }
 
     setState(() {
       _isSaving = true;
@@ -95,6 +132,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         district: _districtController.text.trim(),
         province: _provinceController.text.trim(),
         bio: _bioController.text.trim(),
+        dateOfBirth: _dateOfBirth,
         businessName: _user!.isSeller ? _businessNameController.text.trim() : null,
         businessDescription:
             _user!.isSeller ? _businessDescriptionController.text.trim() : null,
@@ -157,6 +195,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           initialValue: _user!.email,
                           enabled: false,
                           decoration: const InputDecoration(labelText: 'Email (cannot be changed)'),
+                        ),
+                        const SizedBox(height: 16),
+                        InkWell(
+                          onTap: _isSaving ? null : _pickDateOfBirth,
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'Date of birth',
+                              errorText: _dobError,
+                              suffixIcon: const Icon(Icons.calendar_today_outlined),
+                            ),
+                            child: Text(
+                              _dateOfBirth == null
+                                  ? 'Select your date of birth'
+                                  : DateFormat('MMMM d, yyyy').format(_dateOfBirth!),
+                              style: TextStyle(
+                                color: _dateOfBirth == null
+                                    ? Theme.of(context).hintColor
+                                    : null,
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(

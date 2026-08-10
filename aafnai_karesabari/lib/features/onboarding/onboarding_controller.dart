@@ -61,6 +61,11 @@ bool get sellerApproved => _sellerStatus == 'approved';
   }
 
   bool isLoadingProfile = false;
+  // True until the persisted language preference has been read from
+  // SharedPreferences. Routing must wait for this instead of assuming
+  // languageCode == null means "never chosen" — on a page refresh the
+  // in-memory value starts null even for returning users.
+  bool isLoadingLanguage = true;
   AuthStatus authStatus = AuthStatus.unauthenticated; // updated once Firebase confirms auth state
   // Active role for buyer/seller mode
   String _activeRole = 'buyer';
@@ -175,6 +180,8 @@ bool get sellerApproved => _sellerStatus == 'approved';
       }
     } catch (e) {
       // ignore errors; languageCode will remain null and be asked again
+    } finally {
+      isLoadingLanguage = false;
     }
     // Ensure listeners know the language state (may affect initial redirect)
     notifyListeners();

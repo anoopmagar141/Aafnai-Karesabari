@@ -85,7 +85,7 @@ class _UpdateOrderStatusDialogState extends State<UpdateOrderStatusDialog> {
     final availableStatuses = _getAvailableStatusTransitions();
 
     return AlertDialog(
-      title: Text('Update Order Status'),
+      title: const Text('Update Order Status'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +148,7 @@ class _UpdateOrderStatusDialogState extends State<UpdateOrderStatusDialog> {
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: _selectedStatus == status
-                              ? _getStatusColor(status).withOpacity(0.1)
+                              ? _getStatusColor(status).withValues(alpha: 0.1)
                               : Colors.transparent,
                         ),
                         child: Row(

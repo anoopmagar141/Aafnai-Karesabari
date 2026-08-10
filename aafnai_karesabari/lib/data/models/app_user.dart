@@ -35,6 +35,7 @@ class AppUser {
     this.totalReviews,
     this.totalProducts,
     required this.createdAt,
+    this.dateOfBirth,
     this.profileCompleted = false,
     this.isAdmin = false,
     this.activeRole = 'buyer',
@@ -74,6 +75,7 @@ class AppUser {
   final int? totalReviews;
   final int? totalProducts;
   final DateTime createdAt;
+  final DateTime? dateOfBirth;
   final bool profileCompleted;
   
   // Role & Admin fields
@@ -118,6 +120,7 @@ class AppUser {
     int? totalReviews,
     int? totalProducts,
     DateTime? createdAt,
+    DateTime? dateOfBirth,
     bool? profileCompleted,
     bool? isAdmin,
     String? activeRole,
@@ -155,6 +158,7 @@ class AppUser {
       totalReviews: totalReviews ?? this.totalReviews,
       totalProducts: totalProducts ?? this.totalProducts,
       createdAt: createdAt ?? this.createdAt,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       profileCompleted: profileCompleted ?? this.profileCompleted,
       isAdmin: isAdmin ?? this.isAdmin,
       activeRole: activeRole ?? this.activeRole,
@@ -194,6 +198,7 @@ class AppUser {
         'total_reviews': totalReviews,
         'total_products': totalProducts,
         'created_at': timestampToFirestore(createdAt),
+        'date_of_birth': timestampToFirestoreNullable(dateOfBirth),
         'profileCompleted': profileCompleted,
         'isAdmin': isAdmin,
         'activeRole': activeRole,
@@ -242,6 +247,7 @@ class AppUser {
       totalReviews: map['total_reviews'] as int?,
       totalProducts: map['total_products'] as int?,
       createdAt: timestampFromFirestoreRequired(map['created_at']),
+      dateOfBirth: timestampFromFirestore(map['date_of_birth']),
       profileCompleted: (map['profileCompleted'] ?? false) as bool,
       isAdmin: (map['isAdmin'] ?? false) as bool,
       activeRole: (map['activeRole'] ?? 'buyer') as String,
@@ -280,6 +286,7 @@ class AppUser {
             photoUrl == other.photoUrl &&
             location == other.location &&
             createdAt == other.createdAt &&
+            dateOfBirth == other.dateOfBirth &&
             profileCompleted == other.profileCompleted &&
             isAdmin == other.isAdmin &&
             activeRole == other.activeRole &&
@@ -300,6 +307,7 @@ class AppUser {
         photoUrl,
         location,
         createdAt,
+        dateOfBirth,
         profileCompleted,
         isAdmin,
         activeRole,

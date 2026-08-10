@@ -7,11 +7,13 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../data/models/listing.dart';
+import '../../../data/repositories/listing_repository.dart';
 import '../../../data/services/listing_service.dart';
 import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/error_state.dart';
 import '../../../shared/components/status_badge.dart';
 import 'add_listing_controller.dart';
+import 'update_inventory_dialog.dart';
 
 class ListingsScreen extends ConsumerStatefulWidget {
   const ListingsScreen({super.key});
@@ -79,6 +81,35 @@ class _ListingsScreenState extends ConsumerState<ListingsScreen> {
     }
   }
 
+  Future<void> _updateStock(Listing listing, int newQuantity) async {
+    try {
+      await ref.read(listingRepositoryProvider).update(
+            listing.copyWith(stockQuantity: newQuantity, updatedAt: DateTime.now()),
+          );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Stock updated')),
+      );
+      await _refreshListings();
+    } on AppException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+    }
+  }
+
+  void _showUpdateStockDialog(Listing listing) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => UpdateInventoryDialog(
+        currentQuantity: listing.stockQuantity,
+        listingName: listing.productName,
+        onUpdate: (newQuantity) => _updateStock(listing, newQuantity),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final listingsAsync = ref.watch(farmerListingsProvider(_farmerId));
@@ -119,6 +150,7 @@ class _ListingsScreenState extends ConsumerState<ListingsScreen> {
                   onEdit: () => context.push('/farmer/listings/${listing.id}/edit'),
                   onTogglePublish: () => _togglePublish(listing),
                   onDelete: () => _deleteListing(listing),
+                  onUpdateStock: () => _showUpdateStockDialog(listing),
                 );
               },
             ),
@@ -135,12 +167,14 @@ class _ListingTile extends StatelessWidget {
     required this.onEdit,
     required this.onTogglePublish,
     required this.onDelete,
+    required this.onUpdateStock,
   });
 
   final Listing listing;
   final VoidCallback onEdit;
   final VoidCallback onTogglePublish;
   final VoidCallback onDelete;
+  final VoidCallback onUpdateStock;
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +211,8 @@ class _ListingTile extends StatelessWidget {
             switch (value) {
               case 'edit':
                 onEdit();
+              case 'stock':
+                onUpdateStock();
               case 'publish':
                 onTogglePublish();
               case 'delete':
@@ -185,6 +221,7 @@ class _ListingTile extends StatelessWidget {
           },
           itemBuilder: (_) => [
             const PopupMenuItem(value: 'edit', child: Text('Edit')),
+            const PopupMenuItem(value: 'stock', child: Text('Update stock')),
             PopupMenuItem(
               value: 'publish',
               child: Text(

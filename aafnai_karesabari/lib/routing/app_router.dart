@@ -19,7 +19,6 @@ import '../features/farmer/home/farmer_home_screen.dart';
 import '../features/farmer/listings/listing_form_screen.dart';
 import '../features/farmer/listings/listings_screen.dart';
 import '../features/farmer/orders/farmer_orders_screen.dart';
-import '../features/farmer/promotions/promotions_screen.dart';
 import '../features/onboarding/auth/forgot_password_screen.dart';
 import '../features/onboarding/auth/login_screen.dart';
 import '../features/onboarding/auth/register_screen.dart';
@@ -28,15 +27,7 @@ import '../features/onboarding/profile_setup/profile_setup_screen.dart';
 import '../features/admin/dashboard/admin_dashboard_screen.dart';
 import '../features/consumer/seller_application/seller_application_form_screen.dart';
 import '../features/shared/settings/edit_profile_screen.dart';
-
-// Seller imports added below
 import '../features/consumer/wishlist/wishlist_screen.dart';
-import '../features/seller/listings/add_edit_listing_screen.dart';
-import '../features/seller/dashboard/seller_dashboard_screen.dart';
-import '../features/seller/listings/seller_listings_page.dart';
-import '../features/seller/orders/seller_orders_screen.dart';
-import '../features/seller/earnings/seller_earnings_screen.dart';
-import '../features/seller/profile/seller_profile_screen.dart';
 import '../features/shared/notifications/notifications_screen.dart';
 import '../features/shared/orders/order_detail_screen.dart';
 import '../features/shared/reviews/reviews_screen.dart';
@@ -85,9 +76,6 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
           GoRoute(
               path: '/farmer/earnings',
               builder: (_, __) => const EarningsScreen()),
-          GoRoute(
-              path: '/farmer/promotions',
-              builder: (_, __) => const PromotionsScreen()),
         ]),
     ShellRoute(
         builder: (_, __, child) => _RoleShell(farmer: false, child: child),
@@ -152,13 +140,6 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
     GoRoute(path: AppRoutes.sellerApply, builder: (_, __) => const SellerApplicationFormScreen()),
     GoRoute(path: AppRoutes.editProfile, builder: (_, __) => const EditProfileScreen()),
-    GoRoute(path: AppRoutes.sellerDashboard, builder: (_, __) => const SellerDashboardScreen()),
-    GoRoute(path: AppRoutes.sellerListings, builder: (_, __) => const SellerListingsPage()),
-    GoRoute(path: AppRoutes.sellerListingsCreate, builder: (_, __) => const AddEditListingScreen()),
-    GoRoute(path: AppRoutes.sellerListingsEdit, builder: (context, state) => AddEditListingScreen(listingId: state.pathParameters['id']!)),
-    GoRoute(path: AppRoutes.sellerOrders, builder: (_, __) => const SellerOrdersScreen()),
-    GoRoute(path: AppRoutes.sellerEarnings, builder: (_, __) => const SellerEarningsScreen()),
-    GoRoute(path: AppRoutes.sellerProfile, builder: (_, __) => const SellerProfileScreen()),
     GoRoute(
         path: AppRoutes.adminDashboard,
         builder: (_, __) => const AdminDashboardScreen()),

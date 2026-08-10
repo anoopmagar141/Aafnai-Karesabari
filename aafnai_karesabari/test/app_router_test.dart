@@ -37,11 +37,16 @@ class FakeUserRepository implements UserRepository {
 }
 
 OnboardingController createTestOnboardingController() {
+  // The real controller loads its persisted language preference from
+  // SharedPreferences asynchronously, which never resolves in this plain
+  // `test()` environment (no plugin bindings). Mark it loaded immediately
+  // so resolveRedirectPath's isLoadingLanguage gate doesn't block every
+  // test case forever.
   return OnboardingController(
     auth: MockFirebaseAuth(),
     userRepository: FakeUserRepository(),
     subscribeToAuthChanges: false,
-  );
+  )..isLoadingLanguage = false;
 }
 
 void main() {
@@ -112,18 +117,71 @@ void main() {
       expect(redirect, isNull);
     });
 
-    test('redirects a non-approved user away from other seller routes', () {
+    test('redirects a non-approved user away from the farmer dashboard', () {
       final controller = createTestOnboardingController();
       controller.authStatus = AuthStatus.authenticated;
       controller.selectLanguage('en');
       controller.profileComplete = true;
 
       final redirect = resolveRedirectPath(
-        path: AppRoutes.sellerDashboard,
+        path: AppRoutes.farmerHome,
         onboardingController: controller,
       );
 
       expect(redirect, AppRoutes.consumerHome);
+    });
+
+    test('"Get started" reaches language select even with a cached language, unlike "I already have an account"', () {
+      final controller = createTestOnboardingController();
+      controller.selectLanguage('en'); // simulates a language cached from a previous session
+
+      final getStarted = resolveRedirectPath(
+        path: AppRoutes.languageSelect,
+        onboardingController: controller,
+      );
+      final alreadyHaveAccount = resolveRedirectPath(
+        path: AppRoutes.login,
+        onboardingController: controller,
+      );
+
+      expect(getStarted, isNull, reason: 'Get started must show language select, not bounce to login');
+      expect(alreadyHaveAccount, isNull, reason: 'Sign-in should go straight to the login screen');
+    });
+
+    test('waits for the persisted language check instead of forcing language select', () {
+      // Simulates a page refresh: languageCode is null in memory even though
+      // a returning user already picked one, because the SharedPreferences
+      // read hasn't resolved yet.
+      final controller = createTestOnboardingController();
+      controller.isLoadingLanguage = true;
+
+      final redirect = resolveRedirectPath(
+        path: AppRoutes.register,
+        onboardingController: controller,
+      );
+
+      expect(redirect, isNull,
+          reason: 'Must not redirect away while the language preference is still loading');
+    });
+
+    test('a first-time visitor (no language ever chosen) can still reach sign-in directly', () {
+      // languageCode is null and stays null — nobody has picked one yet,
+      // as is true for every genuinely first-time visitor.
+      final controller = createTestOnboardingController();
+
+      final signIn = resolveRedirectPath(
+        path: AppRoutes.login,
+        onboardingController: controller,
+      );
+      final register = resolveRedirectPath(
+        path: AppRoutes.register,
+        onboardingController: controller,
+      );
+
+      expect(signIn, isNull,
+          reason: '"I already have an account" must show sign-in even with no language chosen yet');
+      expect(register, AppRoutes.languageSelect,
+          reason: 'Register still requires picking a language first');
     });
   });
 }

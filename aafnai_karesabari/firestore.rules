@@ -43,11 +43,6 @@ service cloud.firestore {
       allow read: if signedIn() && (owns(resource.data.farmer_id) || owns(resource.data.consumer_id));
       allow write: if signedIn();
     }
-    match /sellerListings/{listingId} {
-      allow read: if true;
-      allow create: if signedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if owns(resource.data.sellerId);
-    }
     match /reviews/{reviewId} { allow read: if true; allow write: if signedIn(); }
     match /price_history/{priceId} { allow read: if true; allow write: if false; }
     match /notifications/{notificationId} { allow read: if owns(resource.data.user_id); allow write: if signedIn(); }

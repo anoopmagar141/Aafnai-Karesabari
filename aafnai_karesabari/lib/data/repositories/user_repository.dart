@@ -35,7 +35,13 @@ class FirestoreUserRepository implements UserRepository {
 
   @override
   Future<void> update(AppUser user) => runFirestore(() async {
-    await _users.doc(user.id).update(user.toFirestore());
+    // Upsert rather than a strict update: the very moment a new Firebase
+    // Auth account is created, the auth-state listener in
+    // OnboardingController races to create this same document. Whichever
+    // write lands second must not fail just because the other hasn't run
+    // yet — Firestore still evaluates the security rules as `create` or
+    // `update` correctly based on whether the doc existed.
+    await _users.doc(user.id).set(user.toFirestore(), SetOptions(merge: true));
   }, message: 'Unable to update user profile.');
 
   @override

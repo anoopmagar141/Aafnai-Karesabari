@@ -2,15 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/utils/listing_icons.dart';
 import '../../../data/models/listing.dart';
 import '../../../shared/components/auth_text_field.dart';
 import '../../../shared/components/confirmation_dialog.dart';
 import '../../../data/services/listing_service.dart';
-import '../../../shared/components/listing_photo_section.dart';
 import '../../../shared/components/primary_button.dart';
 import '../../../shared/components/secondary_button.dart';
 import 'add_listing_controller.dart';
@@ -31,7 +30,6 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController();
   final _locationController = TextEditingController();
-  final _imagePicker = ImagePicker();
 
   bool _loading = false;
   String? _loadError;
@@ -175,42 +173,6 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
       const SnackBar(content: Text('Listing published')),
     );
     context.pop();
-  }
-
-  Future<void> _pickPhoto({String? replaceUrl}) async {
-    try {
-      final picked = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-      );
-      if (picked == null || !mounted) return;
-
-      final bytes = await picked.readAsBytes();
-      final fileName =
-          picked.name.isNotEmpty ? picked.name : 'listing-photo.jpg';
-      final farmerId = _farmerId()!;
-      final notifier = ref.read(listingDraftProvider.notifier);
-
-      if (replaceUrl != null) {
-        await notifier.replacePhoto(
-          existingUrl: replaceUrl,
-          bytes: bytes,
-          fileName: fileName,
-          farmerId: farmerId,
-        );
-      } else {
-        await notifier.uploadPhoto(
-          bytes: bytes,
-          fileName: fileName,
-          farmerId: farmerId,
-        );
-      }
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to pick photo.')),
-      );
-    }
   }
 
   Future<void> _deleteListing() async {
@@ -384,13 +346,9 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
                 controller: _locationController,
               ),
               const SizedBox(height: 24),
-              ListingPhotoSection(
-                photoUrls: draft.photoUrls,
-                isUploading: draft.isUploadingPhoto,
-                onAddPhoto: () => _pickPhoto(),
-                onRemovePhoto: (url) =>
-                    ref.read(listingDraftProvider.notifier).removePhoto(url),
-                onReplacePhoto: (url) => _pickPhoto(replaceUrl: url),
+              _ListingIconPreview(
+                titleListenable: _titleController,
+                category: draft.category,
               ),
               if (draft.errorMessage != null) ...[
                 const SizedBox(height: 16),
@@ -402,30 +360,74 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
               const SizedBox(height: 24),
               PrimaryButton(
                 label: draft.isSaving ? 'Saving...' : 'Publish listing',
-                onPressed: (draft.isSaving || draft.isUploadingPhoto)
-                    ? null
-                    : _publish,
+                onPressed: draft.isSaving ? null : _publish,
               ),
               const SizedBox(height: 12),
               SecondaryButton(
                 label: draft.isSaving ? 'Saving...' : 'Save draft',
-                onPressed: (draft.isSaving || draft.isUploadingPhoto)
-                    ? null
-                    : _saveDraft,
+                onPressed: draft.isSaving ? null : _saveDraft,
               ),
               if (isEditing) ...[
                 const SizedBox(height: 12),
                 SecondaryButton(
                   label: 'Delete listing',
-                  onPressed: (draft.isSaving || draft.isUploadingPhoto)
-                      ? null
-                      : _deleteListing,
+                  onPressed: draft.isSaving ? null : _deleteListing,
                 ),
               ],
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ListingIconPreview extends StatelessWidget {
+  const _ListingIconPreview({
+    required this.titleListenable,
+    required this.category,
+  });
+
+  final TextEditingController titleListenable;
+  final ListingCategory category;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: titleListenable,
+      builder: (context, _) {
+        final icon = iconForListing(titleListenable.text, category);
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.softGreen,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 28),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Text(
+                  'This icon represents your product in the marketplace. '
+                  'It is chosen automatically from the title and category — '
+                  'no photo upload needed.',
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

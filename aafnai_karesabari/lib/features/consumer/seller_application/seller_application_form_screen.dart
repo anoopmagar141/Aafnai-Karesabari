@@ -8,6 +8,7 @@ import '../../../core/theme/typography.dart';
 import '../../../data/models/app_user.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../../data/services/seller_application_service.dart';
+import '../../../routing/app_routes.dart';
 import '../../../shared/components/primary_button.dart';
 import '../../onboarding/onboarding_controller.dart';
 
@@ -31,11 +32,38 @@ class _SellerApplicationFormScreenState
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    _prefillAddress();
+  }
+
+  Future<void> _prefillAddress() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+    final user = await _userRepo.getById(userId);
+    if (!mounted) return;
+    if (_businessAddressController.text.isEmpty && (user?.location ?? '').isNotEmpty) {
+      setState(() => _businessAddressController.text = user!.location!);
+    }
+  }
+
+  @override
   void dispose() {
     _businessNameController.dispose();
     _businessDescriptionController.dispose();
     _businessAddressController.dispose();
     super.dispose();
+  }
+
+  /// Navigates away from this screen. Settings routes here with context.go(),
+  /// which replaces the stack entirely, so there is nothing to pop back to —
+  /// context.pop() would throw. Fall back to Home in that case.
+  void _leave() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.consumerHome);
+    }
   }
 
   Future<void> _submit() async {
@@ -65,7 +93,7 @@ class _SellerApplicationFormScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Application submitted! We will review it shortly.')),
       );
-      context.pop();
+      _leave();
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -109,7 +137,7 @@ class _SellerApplicationFormScreenState
             );
           }
 
-          return _buildForm(user);
+          return _buildForm();
         },
       ),
     );
@@ -138,7 +166,7 @@ class _SellerApplicationFormScreenState
             ),
             const SizedBox(height: 24),
             OutlinedButton(
-              onPressed: () => context.pop(),
+              onPressed: _leave,
               child: const Text('Back'),
             ),
           ],
@@ -147,12 +175,7 @@ class _SellerApplicationFormScreenState
     );
   }
 
-  Widget _buildForm(AppUser? user) {
-    if (user != null && (_businessAddressController.text.isEmpty) &&
-        (user.location ?? '').isNotEmpty) {
-      _businessAddressController.text = user.location!;
-    }
-
+  Widget _buildForm() {
     return SafeArea(
       child: Form(
         key: _formKey,

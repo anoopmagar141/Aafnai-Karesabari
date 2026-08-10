@@ -20,7 +20,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -32,7 +31,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -59,14 +57,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Text(
                     'Join Aafnai Karesabari and start your onboarding journey.'),
                 const SizedBox(height: 24),
-                AuthTextField(
-                  label: 'Full name',
-                  controller: _fullNameController,
-                  validator: _validateName,
-                  prefixIcon: Icons.person_outline,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 16),
                 AuthTextField(
                   label: 'Email address',
                   controller: _emailController,
@@ -135,20 +125,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
       await _users.save(AppUser(
         id: user.uid,
-        name: _fullNameController.text.trim(),
+        name: '',
         phone: '',
-        language: AppLanguage.en,
+        language: onboardingController.languageCode == 'ne'
+            ? AppLanguage.ne
+            : AppLanguage.en,
         email: user.email ?? _emailController.text.trim(),
         location: null,
         createdAt: DateTime.now(),
         profileCompleted: false,
-
       ));
       await onboardingController.syncWithAuthState(user);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account created successfully.')));
-      context.go(AppRoutes.languageSelect);
+      context.go(AppRoutes.consumerSetup);
     } on FirebaseAuthException catch (error) {
       _showError(_firebaseMessage(error));
     } catch (error) {
@@ -156,16 +147,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your full name.';
-    }
-    if (value.trim().length < 2) {
-      return 'Name must be at least 2 characters.';
-    }
-    return null;
   }
 
   String? _validateEmail(String? value) {

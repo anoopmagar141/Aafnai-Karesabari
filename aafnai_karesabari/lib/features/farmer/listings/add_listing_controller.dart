@@ -1,16 +1,7 @@
-import 'dart:typed_data';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../core/errors/app_exception.dart';
 import '../../../data/models/listing.dart';
-import '../../../data/services/listing_image_storage_service.dart';
 import '../../../data/services/listing_service.dart';
-
-
-final listingImageStorageProvider = Provider<ListingImageStorageService>(
-  (ref) => ResilientListingImageStorageService(),
-);
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ListingDraft {
   const ListingDraft({
@@ -24,7 +15,6 @@ class ListingDraft {
     this.location = '',
     this.photoUrls = const [],
     this.isSaving = false,
-    this.isUploadingPhoto = false,
     this.errorMessage,
   });
 
@@ -38,7 +28,6 @@ class ListingDraft {
   final String location;
   final List<String> photoUrls;
   final bool isSaving;
-  final bool isUploadingPhoto;
   final String? errorMessage;
 
   bool get isEditing => listingId != null;
@@ -67,7 +56,6 @@ class ListingDraft {
     String? location,
     List<String>? photoUrls,
     bool? isSaving,
-    bool? isUploadingPhoto,
     String? errorMessage,
   }) {
     return ListingDraft(
@@ -81,7 +69,6 @@ class ListingDraft {
       location: location ?? this.location,
       photoUrls: photoUrls ?? this.photoUrls,
       isSaving: isSaving ?? this.isSaving,
-      isUploadingPhoto: isUploadingPhoto ?? this.isUploadingPhoto,
       errorMessage: errorMessage,
     );
   }
@@ -102,14 +89,9 @@ class ListingDraft {
 }
 
 class ListingDraftNotifier extends StateNotifier<ListingDraft> {
-  ListingDraftNotifier(this._service, this._imageStorage)
-      : super(const ListingDraft());
+  ListingDraftNotifier(this._service) : super(const ListingDraft());
 
   final ListingService _service;
-  final ListingImageStorageService _imageStorage;
-
-  String _storageListingId(String farmerId) =>
-      state.listingId ?? 'draft-$farmerId';
 
   void loadFromListing(Listing listing) {
     state = ListingDraft.fromListing(listing);
@@ -140,100 +122,6 @@ class ListingDraftNotifier extends StateNotifier<ListingDraft> {
       photoUrls: photoUrls,
       errorMessage: null,
     );
-  }
-
-  void addPhotoUrl(String url) {
-    final trimmed = url.trim();
-    if (trimmed.isEmpty || state.photoUrls.contains(trimmed)) return;
-    state = state.copyWith(
-      photoUrls: [...state.photoUrls, trimmed],
-      errorMessage: null,
-    );
-  }
-
-  void removePhotoUrl(String url) {
-    state = state.copyWith(
-      photoUrls: state.photoUrls.where((item) => item != url).toList(),
-      errorMessage: null,
-    );
-  }
-
-  Future<void> uploadPhoto({
-    required Uint8List bytes,
-    required String fileName,
-    required String farmerId,
-    String contentType = 'image/jpeg',
-  }) async {
-    state = state.copyWith(isUploadingPhoto: true, errorMessage: null);
-    try {
-      final url = await _imageStorage.upload(
-        farmerId: farmerId,
-        listingId: _storageListingId(farmerId),
-        bytes: bytes,
-        fileName: fileName,
-        contentType: contentType,
-      );
-      state = state.copyWith(
-        photoUrls: [...state.photoUrls, url],
-        isUploadingPhoto: false,
-      );
-    } on AppException catch (error) {
-      state = state.copyWith(
-        isUploadingPhoto: false,
-        errorMessage: error.message,
-      );
-    } catch (_) {
-      state = state.copyWith(
-        isUploadingPhoto: false,
-        errorMessage: 'Unable to upload photo right now.',
-      );
-    }
-  }
-
-  Future<void> replacePhoto({
-    required String existingUrl,
-    required Uint8List bytes,
-    required String fileName,
-    required String farmerId,
-    String contentType = 'image/jpeg',
-  }) async {
-    state = state.copyWith(isUploadingPhoto: true, errorMessage: null);
-    try {
-      final url = await _imageStorage.replace(
-        farmerId: farmerId,
-        listingId: _storageListingId(farmerId),
-        existingUrl: existingUrl,
-        bytes: bytes,
-        fileName: fileName,
-        contentType: contentType,
-      );
-      final updatedUrls = state.photoUrls
-          .map((item) => item == existingUrl ? url : item)
-          .toList(growable: false);
-      state = state.copyWith(
-        photoUrls: updatedUrls,
-        isUploadingPhoto: false,
-      );
-    } on AppException catch (error) {
-      state = state.copyWith(
-        isUploadingPhoto: false,
-        errorMessage: error.message,
-      );
-    } catch (_) {
-      state = state.copyWith(
-        isUploadingPhoto: false,
-        errorMessage: 'Unable to replace photo right now.',
-      );
-    }
-  }
-
-  Future<void> removePhoto(String url) async {
-    try {
-      await _imageStorage.delete(imageUrl: url);
-    } on AppException {
-      // Allow local placeholders and graceful cleanup even if remote delete fails.
-    }
-    removePhotoUrl(url);
   }
 
   Future<Listing?> saveDraft(String farmerId) async {
@@ -306,10 +194,7 @@ class ListingDraftNotifier extends StateNotifier<ListingDraft> {
 
 final listingDraftProvider =
     StateNotifierProvider<ListingDraftNotifier, ListingDraft>(
-  (ref) => ListingDraftNotifier(
-    ref.watch(listingServiceProvider),
-    ref.watch(listingImageStorageProvider),
-  ),
+  (ref) => ListingDraftNotifier(ref.watch(listingServiceProvider)),
 );
 
 final farmerListingsProvider =

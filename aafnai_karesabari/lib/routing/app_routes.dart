@@ -20,13 +20,6 @@ abstract final class AppRoutes {
   static const cart = '/consumer/cart';
   static const wishlist = '/consumer/wishlist';
   static const product = '/consumer/product/:id';
-  static const sellerDashboard = '/seller/dashboard';
-  static const sellerListings = '/seller/listings';
-  static const sellerListingsCreate = '/seller/listings/add';
-  static const sellerListingsEdit = '/seller/listings/:id/edit';
-  static const sellerOrders = '/seller/orders';
-  static const sellerEarnings = '/seller/earnings';
-  static const sellerProfile = '/seller/profile';
   static const adminDashboard = '/admin/dashboard';
   static const adminSellerApplications = '/admin/seller-applications';
 }
@@ -49,16 +42,40 @@ String? resolveRedirectPath({
     return null;
   }
 
-  // Language selection must be completed first
-  if (onboardingController.languageCode == null) {
+  // The persisted language preference loads asynchronously from
+  // SharedPreferences. On a page refresh, languageCode starts out null in
+  // memory even for a returning user who already picked one — deciding
+  // anything based on languageCode before that load finishes would
+  // incorrectly bounce the user back into the language-select/register
+  // funnel. Wait for it; onboardingController notifies listeners (which
+  // re-runs this redirect) once it resolves.
+  if (onboardingController.isLoadingLanguage) {
+    return null;
+  }
+
+  // Language selection is required before the "Get started" -> register
+  // funnel, but NOT before signing in: a returning user's language
+  // preference already lives on their profile and loads right after
+  // authentication (see syncWithAuthState). Without this exception, any
+  // user who hasn't picked a language yet — which is every first-time
+  // visitor by definition — gets forced into language-select/register
+  // no matter which button they pressed on the splash screen.
+  final skipsLanguageGate =
+      path == AppRoutes.login || path == AppRoutes.forgotPassword;
+  if (onboardingController.languageCode == null && !skipsLanguageGate) {
     return AppRoutes.languageSelect;
   }
 
-  // Unauthenticated users: only auth routes are allowed
+  // Unauthenticated users: only auth routes are allowed. languageSelect is
+  // included so "Get started" can always reach it (and from there,
+  // register) even when a language was already picked in a previous
+  // session — otherwise it and "I already have an account" both collapse
+  // onto the login screen.
   if (onboardingController.authStatus == AuthStatus.unauthenticated) {
     final isAuthRoute = path == AppRoutes.login ||
         path == AppRoutes.register ||
-        path == AppRoutes.forgotPassword;
+        path == AppRoutes.forgotPassword ||
+        path == AppRoutes.languageSelect;
     return isAuthRoute ? null : AppRoutes.login;
   }
 
@@ -94,11 +111,12 @@ String? resolveRedirectPath({
     return AppRoutes.consumerHome;
   }
 
-  // Seller routes require approval, except the application form itself —
-  // that's precisely where a not-yet-approved user needs to land.
-  final isSellerRoute =
-      path.startsWith('/seller/') && path != AppRoutes.sellerApply;
-  if (isSellerRoute && !onboardingController.sellerApproved) {
+  // The seller dashboard/listings/orders/earnings flow lives under /farmer/
+  // and requires an approved seller account. The application form itself
+  // lives under /seller/ — that's precisely where a not-yet-approved user
+  // needs to land, so it's excluded from this guard.
+  final isFarmerRoute = path.startsWith('/farmer/');
+  if (isFarmerRoute && !onboardingController.sellerApproved) {
     return AppRoutes.consumerHome;
   }
 
