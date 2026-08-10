@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/utils/listing_icons.dart';
 import 'firestore_helpers.dart';
 
 enum ListingCategory { vegetable, fruit, grain }
@@ -114,12 +115,14 @@ class Listing {
   }
 
   factory Listing.fromMap(Map<String, Object?> map) {
+    final productName = (map['product_name'] ?? map['title'] ?? '') as String;
+    final category = ListingCategory.values.byName(map['category']! as String);
     return Listing(
       id: map['id']! as String,
       farmerId: (map['farmer_id'] ?? '') as String,
-      productName: (map['product_name'] ?? map['title'] ?? '') as String,
+      productName: productName,
       description: map['description'] as String?,
-      category: ListingCategory.values.byName(map['category']! as String),
+      category: category,
       pricePerUnit: doubleFromFirestore(map['price_per_unit']),
       unit: ListingUnit.values.byName(map['unit']! as String),
       stockQuantity: intFromFirestore(map['stock_quantity']),
@@ -130,6 +133,7 @@ class Listing {
       featuredExpiry: timestampFromFirestore(map['featured_expiry']),
       createdAt: timestampFromFirestoreRequired(map['created_at']),
       updatedAt: timestampFromFirestore(map['updated_at']),
+      displayIcon: iconForListing(productName, category),
     );
   }
 

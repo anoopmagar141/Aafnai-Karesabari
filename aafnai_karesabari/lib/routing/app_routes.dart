@@ -11,6 +11,8 @@ abstract final class AppRoutes {
   static const consumerHome = '/consumer/home';
   static const farmerSetup = '/profile-setup/farmer';
   static const farmerHome = '/farmer/home';
+  static const sellerApply = '/seller/apply';
+  static const editProfile = '/profile/edit';
   static const checkout = '/consumer/checkout';
   static const orderConfirmation = '/consumer/order-confirmation';
   static const consumerOrders = '/consumer/orders';

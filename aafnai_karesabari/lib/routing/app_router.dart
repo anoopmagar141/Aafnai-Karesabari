@@ -26,6 +26,8 @@ import '../features/onboarding/auth/register_screen.dart';
 import '../features/onboarding/language_select/language_select_screen.dart';
 import '../features/onboarding/profile_setup/profile_setup_screen.dart';
 import '../features/admin/dashboard/admin_dashboard_screen.dart';
+import '../features/consumer/seller_application/seller_application_form_screen.dart';
+import '../features/shared/settings/edit_profile_screen.dart';
 
 // Seller imports added below
 import '../features/consumer/wishlist/wishlist_screen.dart';
@@ -148,6 +150,8 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
         path: AppRoutes.notifications,
         builder: (_, __) => const NotificationsScreen()),
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
+    GoRoute(path: AppRoutes.sellerApply, builder: (_, __) => const SellerApplicationFormScreen()),
+    GoRoute(path: AppRoutes.editProfile, builder: (_, __) => const EditProfileScreen()),
     GoRoute(path: AppRoutes.sellerDashboard, builder: (_, __) => const SellerDashboardScreen()),
     GoRoute(path: AppRoutes.sellerListings, builder: (_, __) => const SellerListingsPage()),
     GoRoute(path: AppRoutes.sellerListingsCreate, builder: (_, __) => const AddEditListingScreen()),

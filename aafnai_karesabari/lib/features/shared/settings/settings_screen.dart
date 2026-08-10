@@ -25,9 +25,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final AuthService _auth = FirebaseAuthService();
   final SecureTokenStore _tokenStore = SecureTokenStore();
   final UserRepository _userRepo = FirestoreUserRepository();
+  final GlobalKey _settingsSectionKey = GlobalKey();
   bool _signingOut = false;
 
   String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
+
+  void _goHome() {
+    final onboarding = ref.read(authStateProvider);
+    context.go(
+      onboarding.activeRole == 'seller' ? AppRoutes.farmerHome : AppRoutes.consumerHome,
+    );
+  }
+
+  void _scrollToSettings() {
+    final settingsContext = _settingsSectionKey.currentContext;
+    if (settingsContext != null) {
+      Scrollable.ensureVisible(
+        settingsContext,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +63,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: const Text('Profile'),
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.home_outlined),
+          tooltip: 'Home',
+          onPressed: _goHome,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              // Scroll down to settings or open settings modal
-            },
+            tooltip: 'Settings',
+            onPressed: _scrollToSettings,
           )
         ],
       ),
@@ -84,7 +107,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _buildSocialLinks(user),
               ],
               const SizedBox(height: 16),
-              _buildSettingsSection(),
+              Container(key: _settingsSectionKey, child: _buildSettingsSection()),
             ],
           );
         },
@@ -150,11 +173,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit Profile coming soon')),
-              );
-            },
+            onPressed: () => context.push(AppRoutes.editProfile),
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Edit Profile',
           ),
@@ -250,7 +269,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildActionItem(Icons.inventory_2_outlined, 'My Orders', () {
             context.go('/consumer/orders');
           }),
-          _buildActionItem(Icons.favorite_outline, 'Wishlist', _showComingSoon),
+          _buildActionItem(Icons.favorite_outline, 'Wishlist', () {
+            context.go(AppRoutes.wishlist);
+          }),
           _buildActionItem(Icons.shopping_cart_outlined, 'Shopping Cart', () {
             context.go(AppRoutes.cart);
           }),
@@ -330,30 +351,77 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
 
-    if (user.isSeller && !user.sellerVerified) {
+    if (user.sellerStatus == 'pending') {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.orange.shade200),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.hourglass_empty, color: Colors.orange.shade700),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Application Under Review',
-                  style: TextStyle(
-                    color: Colors.orange.shade900,
-                    fontWeight: FontWeight.bold,
+        child: InkWell(
+          onTap: () => context.go(AppRoutes.sellerApply),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.hourglass_empty, color: Colors.orange.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Application Under Review',
+                    style: TextStyle(
+                      color: Colors.orange.shade900,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (user.sellerStatus == 'rejected') {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: InkWell(
+          onTap: () => context.go(AppRoutes.sellerApply),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cancel_outlined, color: Colors.red.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Application Not Approved',
+                        style: TextStyle(
+                          color: Colors.red.shade900,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Tap to reapply',
+                        style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -362,7 +430,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
-        onTap: _showComingSoon, // Navigate to seller application screen once implemented
+        onTap: () => context.go(AppRoutes.sellerApply),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -411,7 +479,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const SizedBox(width: 16),
               ElevatedButton(
-                onPressed: _showComingSoon,
+                onPressed: () => context.go(AppRoutes.sellerApply),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Theme.of(context).colorScheme.primary,

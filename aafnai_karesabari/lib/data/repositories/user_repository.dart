@@ -12,6 +12,7 @@ abstract class UserRepository {
   Future<List<AppUser>> list({int? limit});
   Future<AppUser?> findByPhone(String phone);
   Future<void> updateActiveRole(String uid, String role);
+  Future<void> updateSellerStatus(String uid, String status);
 }
 
 extension UserRepositoryLegacy on UserRepository {
@@ -42,7 +43,10 @@ class FirestoreUserRepository implements UserRepository {
     await _users.doc(uid).update({'activeRole': role});
   }, message: 'Unable to update active role.');
 
-
+  @override
+  Future<void> updateSellerStatus(String uid, String status) => runFirestore(() async {
+    await _users.doc(uid).update({'sellerStatus': status});
+  }, message: 'Unable to update seller status.');
 
   @override
   Future<void> delete(String userId) => runFirestore(
@@ -129,6 +133,14 @@ class LocalUserRepository implements UserRepository {
     final user = _users[uid];
     if (user != null) {
       _users[uid] = user.copyWith(activeRole: role);
+    }
+  }
+
+  @override
+  Future<void> updateSellerStatus(String uid, String status) async {
+    final user = _users[uid];
+    if (user != null) {
+      _users[uid] = user.copyWith(sellerStatus: status);
     }
   }
 }

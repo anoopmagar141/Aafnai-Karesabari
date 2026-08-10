@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/seller_application.dart';
 import '../../../data/repositories/seller_application_repository.dart';
+import '../../../data/services/seller_application_service.dart';
 import '../../onboarding/onboarding_controller.dart';
 
 class SellerApplicationsScreen extends ConsumerWidget {
@@ -10,6 +11,7 @@ class SellerApplicationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.watch(sellerApplicationRepositoryProvider);
+    final service = ref.watch(sellerApplicationServiceProvider);
     final onboarding = ref.watch(authStateProvider);
     final adminId = onboarding.uid ?? '';
 
@@ -46,7 +48,11 @@ class SellerApplicationsScreen extends ConsumerWidget {
                         icon: const Icon(Icons.check_circle, color: Colors.green),
                         tooltip: 'Approve',
                         onPressed: () async {
-                          await repo.updateApplicationStatus(app.id, SellerApplicationStatus.approved, adminId);
+                          await service.reviewApplication(
+                            application: app,
+                            status: SellerApplicationStatus.approved,
+                            adminId: adminId,
+                          );
                         },
                       ),
                       IconButton(
@@ -54,7 +60,11 @@ class SellerApplicationsScreen extends ConsumerWidget {
                         tooltip: 'Reject',
                         onPressed: () async {
                           // Reject without a reason (could be extended to prompt)
-                          await repo.updateApplicationStatus(app.id, SellerApplicationStatus.rejected, adminId);
+                          await service.reviewApplication(
+                            application: app,
+                            status: SellerApplicationStatus.rejected,
+                            adminId: adminId,
+                          );
                         },
                       ),
                     ],

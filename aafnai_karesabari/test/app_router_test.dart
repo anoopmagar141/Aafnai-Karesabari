@@ -31,6 +31,9 @@ class FakeUserRepository implements UserRepository {
 
   @override
   Future<void> updateActiveRole(String uid, String role) async {}
+
+  @override
+  Future<void> updateSellerStatus(String uid, String status) async {}
 }
 
 OnboardingController createTestOnboardingController() {

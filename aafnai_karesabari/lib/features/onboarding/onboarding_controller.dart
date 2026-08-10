@@ -135,6 +135,12 @@ bool get sellerApproved => _sellerStatus == 'approved';
     }
   }
 
+  /// Re-reads the current user's Firestore profile so flags like
+  /// sellerStatus reflect the latest state without requiring a re-login.
+  Future<void> refreshProfile() async {
+    await syncWithAuthState(_auth.currentUser);
+  }
+
   Future<void> selectLanguage(String value) async {
     languageCode = value;
     // Persist language selection so it only appears on first launch

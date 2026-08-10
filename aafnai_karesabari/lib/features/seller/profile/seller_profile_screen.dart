@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../data/models/app_user.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../../core/theme/colors.dart';
+import '../../../routing/app_routes.dart';
 
 class SellerProfileScreen extends StatelessWidget {
   const SellerProfileScreen({super.key});
@@ -17,6 +19,13 @@ class SellerProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Seller Profile'),
         centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Edit Profile',
+            onPressed: () => context.push(AppRoutes.editProfile),
+          ),
+        ],
       ),
       body: StreamBuilder<AppUser?>(
         stream: userRepo.stream(currentUserId),

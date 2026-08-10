@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../onboarding/onboarding_controller.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
+import '../../../routing/app_routes.dart';
+import '../../../data/services/listing_seed_service.dart';
 
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
@@ -38,7 +41,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             Text('Quick Actions', style: AppTypography.sectionTitle),
             const SizedBox(height: 16),
-            _buildQuickActions(context),
+            _buildQuickActions(context, ref, onboarding),
           ],
         ),
       ),
@@ -134,7 +137,8 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(
+      BuildContext context, WidgetRef ref, OnboardingController onboarding) {
     return Column(
       children: [
         _buildActionTile(
@@ -143,9 +147,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           title: 'Seller Verification',
           subtitle: 'Review and approve pending seller applications',
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Seller Verification coming soon')),
-            );
+            context.push(AppRoutes.adminSellerApplications);
           },
         ),
         _buildActionTile(
@@ -156,6 +158,30 @@ class AdminDashboardScreen extends ConsumerWidget {
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('User Management coming soon')),
+            );
+          },
+        ),
+        _buildActionTile(
+          context,
+          icon: Icons.grass,
+          title: 'Seed Sample Listings',
+          subtitle: 'Add 50+ demo products (vector icons, no storage used)',
+          onTap: () async {
+            final adminId = onboarding.uid;
+            if (adminId == null) return;
+            final messenger = ScaffoldMessenger.of(context);
+            messenger.showSnackBar(
+              const SnackBar(content: Text('Seeding sample listings...')),
+            );
+            final created = await ref
+                .read(listingSeedServiceProvider)
+                .seedSampleListings(farmerId: adminId);
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(created > 0
+                    ? 'Added $created new sample listings'
+                    : 'Sample listings already seeded'),
+              ),
             );
           },
         ),

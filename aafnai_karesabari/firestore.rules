@@ -6,10 +6,23 @@ service cloud.firestore {
     function isAdmin() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
+    function selfSellerApplication(userId) {
+      return owns(userId)
+        && resource.data.sellerStatus != 'approved'
+        && request.resource.data.sellerStatus == 'pending'
+        && request.resource.data.isAdmin == resource.data.isAdmin
+        && request.resource.data.activeRole == resource.data.activeRole;
+    }
     match /users/{userId} {
       allow read, create: if owns(userId) || isAdmin();
-      allow update: if (owns(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'sellerStatus', 'activeRole'])) || isAdmin();
+      allow update: if isAdmin()
+        || (owns(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'sellerStatus', 'activeRole']))
+        || selfSellerApplication(userId);
       allow list, delete: if isAdmin();
+
+      match /wishlist/{listingId} {
+        allow read, write: if owns(userId);
+      }
     }
     match /seller_applications/{applicationId} {
       allow create: if signedIn() && request.resource.data.applicantId == request.auth.uid;
