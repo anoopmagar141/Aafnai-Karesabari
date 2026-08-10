@@ -15,7 +15,7 @@ class AppBottomNavBar extends ConsumerWidget {
     final cartCount = ref.watch(cartCountProvider).value ?? 0;
     final labels = farmer
         ? ['Home', 'Listings', 'Orders', 'Earnings', 'Profile']
-        : ['Home', 'Search', 'Cart', 'Orders', 'Profile'];
+        : ['Home', 'Search', 'Wishlist', 'Cart', 'Orders', 'Profile'];
     final icons = farmer
         ? const [
             Icons.home_outlined,
@@ -24,9 +24,10 @@ class AppBottomNavBar extends ConsumerWidget {
             Icons.account_balance_wallet_outlined,
             Icons.person_outline,
           ]
-        : [
+        : const [
             Icons.home_outlined,
             Icons.search,
+            Icons.favorite_border,
             Icons.shopping_cart_outlined,
             Icons.receipt_long_outlined,
             Icons.person_outline,
@@ -34,7 +35,7 @@ class AppBottomNavBar extends ConsumerWidget {
 
     final destinations = List.generate(labels.length, (i) {
       final icon = icons[i];
-      final widget = i == 2 && !farmer && cartCount > 0
+      final widget = i == 3 && !farmer && cartCount > 0
           ? Stack(
               clipBehavior: Clip.none,
               children: [

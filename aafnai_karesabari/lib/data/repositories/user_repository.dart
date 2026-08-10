@@ -11,6 +11,7 @@ abstract class UserRepository {
   Stream<AppUser?> stream(String userId);
   Future<List<AppUser>> list({int? limit});
   Future<AppUser?> findByPhone(String phone);
+  Future<void> updateActiveRole(String uid, String role);
 }
 
 extension UserRepositoryLegacy on UserRepository {
@@ -27,15 +28,21 @@ class FirestoreUserRepository implements UserRepository {
 
   @override
   Future<AppUser> create(AppUser user) => runFirestore(() async {
-        await _users.doc(user.id).set(user.toFirestore());
-        return user;
-      }, message: 'Unable to create user profile.');
+    await _users.doc(user.id).set(user.toFirestore());
+    return user;
+  }, message: 'Unable to create user profile.');
 
   @override
-  Future<void> update(AppUser user) => runFirestore(
-        () => _users.doc(user.id).set(user.toFirestore(), SetOptions(merge: true)),
-        message: 'Unable to update user profile.',
-      );
+  Future<void> update(AppUser user) => runFirestore(() async {
+    await _users.doc(user.id).update(user.toFirestore());
+  }, message: 'Unable to update user profile.');
+
+  @override
+  Future<void> updateActiveRole(String uid, String role) => runFirestore(() async {
+    await _users.doc(uid).update({'activeRole': role});
+  }, message: 'Unable to update active role.');
+
+
 
   @override
   Future<void> delete(String userId) => runFirestore(
@@ -45,10 +52,10 @@ class FirestoreUserRepository implements UserRepository {
 
   @override
   Future<AppUser?> getById(String userId) => runFirestore(() async {
-        final snapshot = await _users.doc(userId).get();
-        if (!snapshot.exists) return null;
-        return AppUser.fromFirestore(snapshot);
-      }, message: 'Unable to load user profile.');
+    final snapshot = await _users.doc(userId).get();
+    if (!snapshot.exists) return null;
+    return AppUser.fromFirestore(snapshot);
+  }, message: 'Unable to load user profile.');
 
   @override
   Stream<AppUser?> stream(String userId) {
@@ -115,5 +122,13 @@ class LocalUserRepository implements UserRepository {
       if (user.phone == phone) return user;
     }
     return null;
+  }
+
+  @override
+  Future<void> updateActiveRole(String uid, String role) async {
+    final user = _users[uid];
+    if (user != null) {
+      _users[uid] = user.copyWith(activeRole: role);
+    }
   }
 }

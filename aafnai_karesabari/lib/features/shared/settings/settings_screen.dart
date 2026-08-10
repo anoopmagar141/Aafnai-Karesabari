@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,14 +14,14 @@ import '../../../features/onboarding/onboarding_controller.dart';
 import '../../../routing/app_router.dart';
 import '../../../shared/components/confirmation_dialog.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final AuthService _auth = FirebaseAuthService();
   final SecureTokenStore _tokenStore = SecureTokenStore();
   final UserRepository _userRepo = FirestoreUserRepository();
@@ -74,6 +75,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildQuickActions(),
               const SizedBox(height: 16),
               _buildSellerSection(user),
+              if (user.isAdmin) ...[
+                const SizedBox(height: 16),
+                _buildAdminSection(),
+              ],
               if (user.socialLinks != null && user.socialLinks!.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 _buildSocialLinks(user),
@@ -290,21 +295,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSellerSection(AppUser user) {
     if (user.sellerVerified) {
+      final onboarding = ref.watch(authStateProvider);
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: FilledButton.icon(
-          onPressed: () {
-             context.go(AppRoutes.farmerHome);
-          },
-          icon: const Icon(Icons.dashboard_outlined),
-          label: const Text('Seller Dashboard'),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.green.shade600,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FilledButton.icon(
+              onPressed: () {
+                context.go(AppRoutes.farmerHome);
+              },
+              icon: const Icon(Icons.dashboard_outlined),
+              label: const Text('Seller Dashboard'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.green.shade600,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(height: 12),
+            SwitchListTile.adaptive(
+              title: const Text('Seller Mode'),
+              subtitle: const Text('Toggle between Buyer and Seller dashboards'),
+              value: onboarding.activeRole == 'seller',
+              onChanged: (bool value) {
+                final role = value ? 'seller' : 'buyer';
+                onboarding.switchRole(role);
+              },
+            ),
+          ],
         ),
       );
     }
@@ -401,6 +422,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: const Text('Apply Now'),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdminSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: FilledButton.icon(
+        onPressed: () {
+          context.go(AppRoutes.adminDashboard);
+        },
+        icon: const Icon(Icons.admin_panel_settings),
+        label: const Text('Admin Dashboard'),
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: Colors.purple.shade600,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

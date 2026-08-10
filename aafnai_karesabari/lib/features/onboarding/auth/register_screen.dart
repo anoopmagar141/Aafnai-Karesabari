@@ -142,8 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         location: null,
         createdAt: DateTime.now(),
         profileCompleted: false,
-        isSeller: false,
-        sellerVerified: false,
+
       ));
       await onboardingController.syncWithAuthState(user);
       if (!mounted) return;

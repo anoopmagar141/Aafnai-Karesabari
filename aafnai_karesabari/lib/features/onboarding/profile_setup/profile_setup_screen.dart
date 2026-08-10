@@ -98,8 +98,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         location: _locationController.text.trim(),
         createdAt: DateTime.now(),
         profileCompleted: true,
-        isSeller: false,
-        sellerVerified: false,
+
       );
 
       await _users.save(baseUser);

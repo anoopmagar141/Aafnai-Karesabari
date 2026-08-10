@@ -11,6 +11,7 @@ import '../../../routing/app_router.dart';
 import '../../../shared/components/farmer_card.dart';
 import '../../../shared/components/primary_button.dart';
 import '../../../shared/components/status_badge.dart';
+import 'ratings_section.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productId});
@@ -99,6 +100,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           name: listing.farmerId.toUpperCase(),
                           district: listing.location ?? 'Lalitpur',
                         ),
+                      ),
+                      const SizedBox(height: 24),
+                      RatingsSection(
+                        farmerId: listing.farmerId,
+                        productId: listing.id,
                       ),
                     ],
                   ),

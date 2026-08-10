@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'firestore_helpers.dart';
+import '../../utils/firestore_helpers.dart';
 
 enum OrderStatus { pending, accepted, rejected, cancelled, completed }
 

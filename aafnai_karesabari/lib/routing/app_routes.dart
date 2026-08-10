@@ -11,12 +11,22 @@ abstract final class AppRoutes {
   static const consumerHome = '/consumer/home';
   static const farmerSetup = '/profile-setup/farmer';
   static const farmerHome = '/farmer/home';
-  static const cart = '/consumer/cart';
   static const checkout = '/consumer/checkout';
   static const orderConfirmation = '/consumer/order-confirmation';
   static const consumerOrders = '/consumer/orders';
   static const notifications = '/notifications';
+  static const cart = '/consumer/cart';
+  static const wishlist = '/consumer/wishlist';
   static const product = '/consumer/product/:id';
+  static const sellerDashboard = '/seller/dashboard';
+  static const sellerListings = '/seller/listings';
+  static const sellerListingsCreate = '/seller/listings/add';
+  static const sellerListingsEdit = '/seller/listings/:id/edit';
+  static const sellerOrders = '/seller/orders';
+  static const sellerEarnings = '/seller/earnings';
+  static const sellerProfile = '/seller/profile';
+  static const adminDashboard = '/admin/dashboard';
+  static const adminSellerApplications = '/admin/seller-applications';
 }
 
 String? resolveRedirectPath({
@@ -82,6 +92,18 @@ String? resolveRedirectPath({
     return AppRoutes.consumerHome;
   }
 
+  // Seller routes require approval
+  final isSellerRoute = path.startsWith('/seller/');
+  if (isSellerRoute && !onboardingController.sellerApproved) {
+    return AppRoutes.consumerHome;
+  }
+
+  // Admin routes require admin status
+  final isAdminRoute = path.startsWith('/admin/');
+  if (isAdminRoute && !onboardingController.isAdmin) {
+    return AppRoutes.consumerHome;
+  }
+
   // All other routes are allowed
   return null;
-}
+} 

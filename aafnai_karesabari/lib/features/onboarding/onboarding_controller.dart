@@ -29,11 +29,47 @@ class OnboardingController extends ChangeNotifier {
   final FirebaseAuth _auth;
   final UserRepository _userRepository;
 
+  String? uid;
   String? email;
   String? languageCode;
   bool profileComplete = false;
+  static const adminDashboard = '/admin/dashboard';
+  static const adminSellerApplications = '/admin/seller-applications';
+  // Seller section routes
+  static const sellerDashboard = '/seller/dashboard';
+  static const sellerListings = '/seller/listings';
+  static const sellerListingsCreate = '/seller/listings/create';
+  static const sellerListingsEdit = '/seller/listings/edit/:id';
+  static const sellerOrders = '/seller/orders';
+  static const sellerEarnings = '/seller/earnings';
+  // Internal admin flag
+  bool _isAdmin = false;
+  // Internal seller status
+  String _sellerStatus = 'none';
+  // Seller status getter
+  String get sellerStatus => _sellerStatus;
+  // Admin getter
+  bool get isAdmin => _isAdmin;
+bool get isSeller => _sellerStatus != 'none';
+bool get sellerApproved => _sellerStatus == 'approved';
+
+  // Switch active role and persist to Firestore
+  Future<void> switchRole(String role) async {
+    if (uid == null) return;
+    activeRole = role;
+    await _userRepository.updateActiveRole(uid!, role);
+  }
+
   bool isLoadingProfile = false;
-  AuthStatus authStatus = AuthStatus.unauthenticated;
+  AuthStatus authStatus = AuthStatus.unauthenticated; // updated once Firebase confirms auth state
+  // Active role for buyer/seller mode
+  String _activeRole = 'buyer';
+
+  String get activeRole => _activeRole;
+  set activeRole(String value) {
+    _activeRole = value;
+    notifyListeners();
+  }
 
   bool get isComplete =>
       authStatus == AuthStatus.authenticated && profileComplete;
@@ -48,6 +84,7 @@ class OnboardingController extends ChangeNotifier {
       authStatus = AuthStatus.unauthenticated;
       email = null;
       profileComplete = false;
+      _isAdmin = false;
       languageCode = null;
       _isSyncing = false;
       notifyListeners();
@@ -55,6 +92,7 @@ class OnboardingController extends ChangeNotifier {
     }
 
     authStatus = AuthStatus.authenticated;
+    uid = user.uid;
     email = user.email;
     isLoadingProfile = true;
     notifyListeners();
@@ -81,6 +119,11 @@ class OnboardingController extends ChangeNotifier {
         // Update onboarding flags from the profile (profile is guaranteed non‑null here)
         final p = profile;
         profileComplete = p.profileCompleted || (p.name.isNotEmpty && p.location != null && p.location!.isNotEmpty);
+        _isAdmin = p.isAdmin;
+        // Set active role from user data
+        activeRole = p.activeRole;
+        _sellerStatus = p.sellerStatus;
+
         // Preserve languageCode if already selected; otherwise fallback to stored language
         languageCode ??= p.language == AppLanguage.ne ? 'ne' : 'en';
     } catch (e) {
@@ -108,6 +151,7 @@ class OnboardingController extends ChangeNotifier {
     email = null;
     authStatus = AuthStatus.unauthenticated;
     profileComplete = false;
+    _isAdmin = false;
     notifyListeners();
   }
 
@@ -134,7 +178,10 @@ class OnboardingController extends ChangeNotifier {
     languageCode = null;
     email = null;
     profileComplete = false;
+    _isAdmin = false;
     authStatus = AuthStatus.unauthenticated;
+    activeRole = 'buyer';
+    _sellerStatus = 'none';
     notifyListeners();
   }
 }

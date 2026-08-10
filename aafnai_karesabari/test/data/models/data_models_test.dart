@@ -43,7 +43,6 @@ void main() {
           language: AppLanguage.en,
           email: 'hari@example.com',
           createdAt: createdAt,
-          isSeller: true,
         );
       final updated = user.copyWith(name: 'Hari Thapa');
       expect(updated.name, 'Hari Thapa');

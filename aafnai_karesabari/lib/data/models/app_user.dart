@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'firestore_helpers.dart';
+import '../../utils/firestore_helpers.dart';
 
 enum AppLanguage { ne, en }
 
@@ -8,11 +8,11 @@ enum TrustBadgeType { newSeller, verified }
 
 class AppUser {
   const AppUser({
+    // Existing fields...
     required this.id,
     required this.name,
     required this.phone,
     required this.language,
-    required this.createdAt,
     required this.email,
     this.photoUrl,
     this.location,
@@ -34,13 +34,16 @@ class AppUser {
     this.sellerRating,
     this.totalReviews,
     this.totalProducts,
+    required this.createdAt,
     this.profileCompleted = false,
-    this.isSeller = false,
-    this.sellerVerified = false,
+    this.isAdmin = false,
+    this.activeRole = 'buyer',
+    this.sellerStatus = 'none',
     this.harvestDate,
     this.trustBadge = TrustBadgeType.newSeller,
     this.ordersCompletedCount = 0,
     this.isPremium = false,
+    this.wishlist = const [],
   });
 
   final String id;
@@ -64,6 +67,8 @@ class AppUser {
   final String? farmAddress;
   final List<String>? productCategories;
   final String? businessHours;
+  /// List of listing IDs the user has added to their wishlist
+  final List<String> wishlist;
   final String? verificationBadge;
   final double? sellerRating;
   final int? totalReviews;
@@ -71,9 +76,16 @@ class AppUser {
   final DateTime createdAt;
   final bool profileCompleted;
   
+  // Role & Admin fields
+  final bool isAdmin;
+  final String activeRole; // e.g. "buyer" or "seller"
+  final String sellerStatus; // "none", "pending", "approved", "rejected"
+  
+  // Computed seller flags to maintain backward compatibility
+  bool get isSeller => sellerStatus != 'none';
+  bool get sellerVerified => sellerStatus == 'approved';
+
   // Seller specific fields
-  final bool isSeller;
-  final bool sellerVerified;
   final DateTime? harvestDate;
   final TrustBadgeType trustBadge;
   final int ordersCompletedCount;
@@ -107,12 +119,14 @@ class AppUser {
     int? totalProducts,
     DateTime? createdAt,
     bool? profileCompleted,
-    bool? isSeller,
-    bool? sellerVerified,
+    bool? isAdmin,
+    String? activeRole,
+    String? sellerStatus,
     DateTime? harvestDate,
     TrustBadgeType? trustBadge,
     int? ordersCompletedCount,
     bool? isPremium,
+    List<String>? wishlist,
   }) {
     return AppUser(
       id: id ?? this.id,
@@ -142,12 +156,14 @@ class AppUser {
       totalProducts: totalProducts ?? this.totalProducts,
       createdAt: createdAt ?? this.createdAt,
       profileCompleted: profileCompleted ?? this.profileCompleted,
-      isSeller: isSeller ?? this.isSeller,
-      sellerVerified: sellerVerified ?? this.sellerVerified,
+      isAdmin: isAdmin ?? this.isAdmin,
+      activeRole: activeRole ?? this.activeRole,
+      sellerStatus: sellerStatus ?? this.sellerStatus,
       harvestDate: harvestDate ?? this.harvestDate,
       trustBadge: trustBadge ?? this.trustBadge,
       ordersCompletedCount: ordersCompletedCount ?? this.ordersCompletedCount,
       isPremium: isPremium ?? this.isPremium,
+      wishlist: wishlist ?? this.wishlist,
     );
   }
 
@@ -179,12 +195,14 @@ class AppUser {
         'total_products': totalProducts,
         'created_at': timestampToFirestore(createdAt),
         'profileCompleted': profileCompleted,
-        'isSeller': isSeller,
-        'sellerVerified': sellerVerified,
+        'isAdmin': isAdmin,
+        'activeRole': activeRole,
+        'sellerStatus': sellerStatus,
         'harvest_date': timestampToFirestoreNullable(harvestDate),
         'trust_badge': trustBadge.name,
         'orders_completed_count': ordersCompletedCount,
         'is_premium': isPremium,
+        'wishlist': wishlist,
       };
 
   Map<String, Object?> toMap() => toFirestore();
@@ -218,14 +236,16 @@ class AppUser {
       farmAddress: map['farm_address'] as String?,
       productCategories: (map['product_categories'] as List?)?.cast<String>(),
       businessHours: map['business_hours'] as String?,
+      wishlist: (map['wishlist'] as List?)?.cast<String>() ?? const [],
       verificationBadge: map['verification_badge'] as String?,
       sellerRating: (map['seller_rating'] as num?)?.toDouble(),
       totalReviews: map['total_reviews'] as int?,
       totalProducts: map['total_products'] as int?,
       createdAt: timestampFromFirestoreRequired(map['created_at']),
       profileCompleted: (map['profileCompleted'] ?? false) as bool,
-      isSeller: (map['isSeller'] ?? map['role'] == 'farmer') as bool,
-      sellerVerified: (map['sellerVerified'] ?? map['role'] == 'farmer') as bool,
+      isAdmin: (map['isAdmin'] ?? false) as bool,
+      activeRole: (map['activeRole'] ?? 'buyer') as String,
+      sellerStatus: _parseSellerStatus(map),
       harvestDate: timestampFromFirestore(map['harvest_date']),
       trustBadge: TrustBadgeType.values.byName(
         (map['trust_badge'] ?? TrustBadgeType.newSeller.name) as String,
@@ -233,6 +253,18 @@ class AppUser {
       ordersCompletedCount: intFromFirestore(map['orders_completed_count']),
       isPremium: (map['is_premium'] ?? false) as bool,
     );
+  }
+
+  static String _parseSellerStatus(Map<String, Object?> map) {
+    if (map['sellerStatus'] != null) {
+      return map['sellerStatus']! as String;
+    }
+    // Fallback for old documents
+    final bool oldVerified = (map['sellerVerified'] ?? map['role'] == 'farmer') as bool;
+    final bool oldIsSeller = (map['isSeller'] ?? map['role'] == 'farmer') as bool;
+    if (oldVerified) return 'approved';
+    if (oldIsSeller) return 'pending';
+    return 'none';
   }
 
   @override
@@ -249,8 +281,9 @@ class AppUser {
             location == other.location &&
             createdAt == other.createdAt &&
             profileCompleted == other.profileCompleted &&
-            isSeller == other.isSeller &&
-            sellerVerified == other.sellerVerified &&
+            isAdmin == other.isAdmin &&
+            activeRole == other.activeRole &&
+            sellerStatus == other.sellerStatus &&
             harvestDate == other.harvestDate &&
             trustBadge == other.trustBadge &&
             ordersCompletedCount == other.ordersCompletedCount &&
@@ -268,8 +301,9 @@ class AppUser {
         location,
         createdAt,
         profileCompleted,
-        isSeller,
-        sellerVerified,
+        isAdmin,
+        activeRole,
+        sellerStatus,
         harvestDate,
         trustBadge,
         ordersCompletedCount,
