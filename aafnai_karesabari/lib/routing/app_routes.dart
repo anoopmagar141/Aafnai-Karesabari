@@ -94,8 +94,10 @@ String? resolveRedirectPath({
     return AppRoutes.consumerHome;
   }
 
-  // Seller routes require approval
-  final isSellerRoute = path.startsWith('/seller/');
+  // Seller routes require approval, except the application form itself —
+  // that's precisely where a not-yet-approved user needs to land.
+  final isSellerRoute =
+      path.startsWith('/seller/') && path != AppRoutes.sellerApply;
   if (isSellerRoute && !onboardingController.sellerApproved) {
     return AppRoutes.consumerHome;
   }

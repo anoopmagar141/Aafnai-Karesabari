@@ -97,5 +97,33 @@ void main() {
 
       expect(redirect, AppRoutes.consumerHome);
     });
+
+    test('allows a non-approved user to reach the seller application form', () {
+      final controller = createTestOnboardingController();
+      controller.authStatus = AuthStatus.authenticated;
+      controller.selectLanguage('en');
+      controller.profileComplete = true;
+
+      final redirect = resolveRedirectPath(
+        path: AppRoutes.sellerApply,
+        onboardingController: controller,
+      );
+
+      expect(redirect, isNull);
+    });
+
+    test('redirects a non-approved user away from other seller routes', () {
+      final controller = createTestOnboardingController();
+      controller.authStatus = AuthStatus.authenticated;
+      controller.selectLanguage('en');
+      controller.profileComplete = true;
+
+      final redirect = resolveRedirectPath(
+        path: AppRoutes.sellerDashboard,
+        onboardingController: controller,
+      );
+
+      expect(redirect, AppRoutes.consumerHome);
+    });
   });
 }
