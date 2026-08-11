@@ -27,10 +27,34 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final AuthService _auth = FirebaseAuthService();
   final UserRepository _users = FirestoreUserRepository();
 
+  AppUser? _existingUser;
   DateTime? _dateOfBirth;
+  bool _loading = true;
   bool _saving = false;
   String? _error;
   String? _dobError;
+
+  /// Name is normally already captured on the Create account screen. Only
+  /// shown here as a fallback for accounts that somehow reached this step
+  /// without one (e.g. pre-existing accounts).
+  bool get _needsName => (_existingUser?.name ?? '').trim().isEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingUser();
+  }
+
+  Future<void> _loadExistingUser() async {
+    final firebaseUser = _auth.currentUser;
+    final existing =
+        firebaseUser == null ? null : await _users.getById(firebaseUser.uid);
+    if (!mounted) return;
+    setState(() {
+      _existingUser = existing;
+      _loading = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -73,7 +97,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return Scaffold(
       appBar: AppBar(
           title: const Text('Set up your profile')),
-      body: SafeArea(
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
         child: Form(
           key: _formKey,
           child: ListView(
@@ -89,22 +115,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
               const SizedBox(height: 4),
               const Text(
-                'We need a few details to set up your account. You must be at least 16 years old to use Aafnai Karesabari.',
+                'We need a few more details to set up your account. You must be at least 16 years old to use Aafnai Karesabari.',
                 style: TextStyle(color: AppColors.textMuted),
               ),
               const SizedBox(height: 24),
-              TextFormField(
-                  controller: _firstNameController,
-                  enabled: !_saving,
-                  decoration: const InputDecoration(labelText: 'First name'),
-                  validator: _required),
-              const SizedBox(height: 16),
-              TextFormField(
-                  controller: _lastNameController,
-                  enabled: !_saving,
-                  decoration: const InputDecoration(labelText: 'Last name'),
-                  validator: _required),
-              const SizedBox(height: 16),
+              if (_needsName) ...[
+                TextFormField(
+                    controller: _firstNameController,
+                    enabled: !_saving,
+                    decoration: const InputDecoration(labelText: 'First name'),
+                    validator: _required),
+                const SizedBox(height: 16),
+                TextFormField(
+                    controller: _lastNameController,
+                    enabled: !_saving,
+                    decoration: const InputDecoration(labelText: 'Last name'),
+                    validator: _required),
+                const SizedBox(height: 16),
+              ],
               InkWell(
                 onTap: _saving ? null : _pickDateOfBirth,
                 child: InputDecorator(
@@ -177,20 +205,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       _error = null;
     });
     try {
-      final firstName = _firstNameController.text.trim();
-      final lastName = _lastNameController.text.trim();
-      final baseUser = AppUser(
-        id: firebaseUser.uid,
-        name: '$firstName $lastName'.trim(),
-        phone: firebaseUser.phoneNumber ?? '',
-        language: onboardingController.languageCode == 'ne'
-            ? AppLanguage.ne
-            : AppLanguage.en,
-        email: firebaseUser.email ?? '',
+      final name = _needsName
+          ? '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}'.trim()
+          : _existingUser!.name;
+
+      final baseUser = (_existingUser ??
+              AppUser(
+                id: firebaseUser.uid,
+                name: name,
+                phone: firebaseUser.phoneNumber ?? '',
+                language: onboardingController.languageCode == 'ne'
+                    ? AppLanguage.ne
+                    : AppLanguage.en,
+                email: firebaseUser.email ?? '',
+                createdAt: DateTime.now(),
+              ))
+          .copyWith(
+        name: name,
         location: _locationController.text.trim(),
         district: _districtController.text.trim(),
         dateOfBirth: _dateOfBirth,
-        createdAt: DateTime.now(),
         profileCompleted: true,
       );
 
