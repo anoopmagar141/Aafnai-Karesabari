@@ -109,12 +109,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _save() async {
     final formValid = _formKey.currentState!.validate();
-    setState(() {
-      _dobError = _dateOfBirth == null ? 'Please select your date of birth' : null;
-    });
-    if (!formValid || _user == null || _dateOfBirth == null) return;
+    if (!formValid || _user == null) return;
 
-    if (_dateOfBirth!.isAfter(_maxBirthDate)) {
+    // Date of birth is optional here — it's captured (and age-verified)
+    // during account creation, and again if the user later applies to
+    // become a seller. Editing an existing profile shouldn't re-impose
+    // that check; only guard against an obviously invalid edit if the
+    // user chooses to change it.
+    if (_dateOfBirth != null && _dateOfBirth!.isAfter(_maxBirthDate)) {
       setState(() => _dobError = 'You must be at least $kMinimumAge years old to use this app.');
       return;
     }
@@ -201,13 +203,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           onTap: _isSaving ? null : _pickDateOfBirth,
                           child: InputDecorator(
                             decoration: InputDecoration(
-                              labelText: 'Date of birth',
+                              labelText: 'Date of birth (optional)',
                               errorText: _dobError,
                               suffixIcon: const Icon(Icons.calendar_today_outlined),
                             ),
                             child: Text(
                               _dateOfBirth == null
-                                  ? 'Select your date of birth'
+                                  ? 'Not set'
                                   : DateFormat('MMMM d, yyyy').format(_dateOfBirth!),
                               style: TextStyle(
                                 color: _dateOfBirth == null

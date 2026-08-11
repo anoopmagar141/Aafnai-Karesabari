@@ -11,6 +11,7 @@ import '../../../data/services/seller_application_service.dart';
 import '../../../routing/app_routes.dart';
 import '../../../shared/components/primary_button.dart';
 import '../../onboarding/onboarding_controller.dart';
+import '../../onboarding/profile_setup/profile_setup_screen.dart' show kMinimumAge;
 
 class SellerApplicationFormScreen extends ConsumerStatefulWidget {
   const SellerApplicationFormScreen({super.key});
@@ -108,6 +109,17 @@ class _SellerApplicationFormScreenState
     return null;
   }
 
+  /// Sellers must be at least [kMinimumAge]. Ordinary profile edits don't
+  /// enforce this — it's only checked here, at the point the user actually
+  /// wants to become a seller.
+  bool _isOldEnough(AppUser user) {
+    final dob = user.dateOfBirth;
+    if (dob == null) return false;
+    final now = DateTime.now();
+    final maxBirthDate = DateTime(now.year - kMinimumAge, now.month, now.day);
+    return !dob.isAfter(maxBirthDate);
+  }
+
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -137,6 +149,19 @@ class _SellerApplicationFormScreenState
             );
           }
 
+          if (user != null && !_isOldEnough(user)) {
+            return _buildStatusMessage(
+              icon: Icons.verified_user_outlined,
+              color: Colors.orange,
+              title: 'Age Verification Required',
+              message: user.dateOfBirth == null
+                  ? 'Sellers must be at least $kMinimumAge years old. Please add your date of birth in Edit Profile, then come back to apply.'
+                  : 'You must be at least $kMinimumAge years old to become a seller.',
+              actionLabel: 'Go to Edit Profile',
+              onAction: () => context.push(AppRoutes.editProfile),
+            );
+          }
+
           return _buildForm();
         },
       ),
@@ -148,6 +173,8 @@ class _SellerApplicationFormScreenState
     required Color color,
     required String title,
     required String message,
+    String? actionLabel,
+    VoidCallback? onAction,
   }) {
     return Center(
       child: Padding(
@@ -165,6 +192,10 @@ class _SellerApplicationFormScreenState
               style: const TextStyle(color: AppColors.textMuted),
             ),
             const SizedBox(height: 24),
+            if (actionLabel != null && onAction != null) ...[
+              PrimaryButton(label: actionLabel, onPressed: onAction),
+              const SizedBox(height: 12),
+            ],
             OutlinedButton(
               onPressed: _leave,
               child: const Text('Back'),
