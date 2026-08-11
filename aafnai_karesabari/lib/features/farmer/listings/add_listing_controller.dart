@@ -16,6 +16,7 @@ class ListingDraft {
     this.photoUrls = const [],
     this.isSaving = false,
     this.errorMessage,
+    this.minBargainPrice,
   });
 
   final String? listingId;
@@ -30,6 +31,10 @@ class ListingDraft {
   final bool isSaving;
   final String? errorMessage;
 
+  /// Lowest price per unit the seller will accept from a buyer's offer.
+  /// Null means bargaining is disabled for this listing.
+  final double? minBargainPrice;
+
   bool get isEditing => listingId != null;
 
   ListingFormData toFormData() {
@@ -42,6 +47,7 @@ class ListingDraft {
       unit: unit,
       location: location,
       photoUrls: photoUrls,
+      minBargainPrice: minBargainPrice,
     );
   }
 
@@ -57,6 +63,8 @@ class ListingDraft {
     List<String>? photoUrls,
     bool? isSaving,
     String? errorMessage,
+    double? minBargainPrice,
+    bool clearMinBargainPrice = false,
   }) {
     return ListingDraft(
       listingId: listingId ?? this.listingId,
@@ -70,6 +78,9 @@ class ListingDraft {
       photoUrls: photoUrls ?? this.photoUrls,
       isSaving: isSaving ?? this.isSaving,
       errorMessage: errorMessage,
+      minBargainPrice: clearMinBargainPrice
+          ? null
+          : (minBargainPrice ?? this.minBargainPrice),
     );
   }
 
@@ -84,6 +95,7 @@ class ListingDraft {
       unit: listing.unit,
       location: listing.location ?? '',
       photoUrls: listing.photoUrls,
+      minBargainPrice: listing.minBargainPrice,
     );
   }
 }
@@ -110,6 +122,8 @@ class ListingDraftNotifier extends StateNotifier<ListingDraft> {
     ListingUnit? unit,
     String? location,
     List<String>? photoUrls,
+    double? minBargainPrice,
+    bool clearMinBargainPrice = false,
   }) {
     state = state.copyWith(
       title: title,
@@ -120,6 +134,8 @@ class ListingDraftNotifier extends StateNotifier<ListingDraft> {
       unit: unit,
       location: location,
       photoUrls: photoUrls,
+      minBargainPrice: minBargainPrice,
+      clearMinBargainPrice: clearMinBargainPrice,
       errorMessage: null,
     );
   }

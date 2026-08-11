@@ -28,6 +28,7 @@ class Listing {
     this.isFeatured = false,
     this.featuredExpiry,
     this.displayIcon = Icons.local_florist,
+    this.minBargainPrice,
   });
 
   final String id;
@@ -49,6 +50,12 @@ class Listing {
   /// Prototype-only fallback when no Storage image exists yet.
   final IconData displayIcon;
 
+  /// Lowest price per unit the seller will accept from a buyer's offer.
+  /// Null means the seller isn't accepting negotiated offers on this listing.
+  final double? minBargainPrice;
+
+  bool get acceptsBargaining => minBargainPrice != null;
+
   String get title => productName;
 
   Listing copyWith({
@@ -68,6 +75,8 @@ class Listing {
     DateTime? createdAt,
     DateTime? updatedAt,
     IconData? displayIcon,
+    double? minBargainPrice,
+    bool clearMinBargainPrice = false,
   }) {
     return Listing(
       id: id ?? this.id,
@@ -86,6 +95,9 @@ class Listing {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       displayIcon: displayIcon ?? this.displayIcon,
+      minBargainPrice: clearMinBargainPrice
+          ? null
+          : (minBargainPrice ?? this.minBargainPrice),
     );
   }
 
@@ -106,6 +118,7 @@ class Listing {
         'featured_expiry': timestampToFirestoreNullable(featuredExpiry),
         'created_at': timestampToFirestore(createdAt),
         'updated_at': timestampToFirestoreNullable(updatedAt ?? createdAt),
+        'min_bargain_price': minBargainPrice,
       };
 
   factory Listing.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -134,6 +147,9 @@ class Listing {
       createdAt: timestampFromFirestoreRequired(map['created_at']),
       updatedAt: timestampFromFirestore(map['updated_at']),
       displayIcon: iconForListing(productName, category),
+      minBargainPrice: map['min_bargain_price'] == null
+          ? null
+          : doubleFromFirestore(map['min_bargain_price']),
     );
   }
 
@@ -156,7 +172,8 @@ class Listing {
             isFeatured == other.isFeatured &&
             featuredExpiry == other.featuredExpiry &&
             createdAt == other.createdAt &&
-            updatedAt == other.updatedAt;
+            updatedAt == other.updatedAt &&
+            minBargainPrice == other.minBargainPrice;
   }
 
   @override
@@ -176,6 +193,7 @@ class Listing {
         featuredExpiry,
         createdAt,
         updatedAt,
+        minBargainPrice,
       );
 }
 

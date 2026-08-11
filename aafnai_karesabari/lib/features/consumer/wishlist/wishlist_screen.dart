@@ -7,33 +7,81 @@ import '../../../data/repositories/listing_repository.dart';
 import '../../../data/services/wishlist_service.dart';
 import '../../../routing/app_routes.dart';
 import '../../../shared/components/empty_state.dart';
+import '../../../shared/components/error_state.dart';
 import '../../../shared/components/product_card.dart';
 
-class WishlistScreen extends ConsumerWidget {
-  const WishlistScreen({Key? key}) : super(key: key);
+class WishlistScreen extends ConsumerStatefulWidget {
+  const WishlistScreen({super.key});
 
-  Future<List<Listing>> _loadWishlist(WidgetRef ref) async {
-    final ids = ref.watch(wishlistNotifierProvider);
-    if (ids.isEmpty) return [];
+  @override
+  ConsumerState<WishlistScreen> createState() => _WishlistScreenState();
+}
+
+class _WishlistScreenState extends ConsumerState<WishlistScreen> {
+  List<String>? _loadedForIds;
+  Future<List<Listing>>? _future;
+  Object? _lastError;
+
+  Future<List<Listing>> _loadWishlist(List<String> ids) async {
     final repo = ref.read(listingRepositoryProvider);
-    final futures = ids.map((id) => repo.getById(id));
-    final results = await Future.wait(futures);
-    return results.whereType<Listing>().toList(growable: false);
+    final results = <Listing>[];
+    for (final id in ids) {
+      try {
+        final listing = await repo.getById(id);
+        if (listing != null) results.add(listing);
+      } catch (_) {
+        // One bad/unreachable listing shouldn't blank out the rest of the
+        // wishlist — skip it and keep going.
+      }
+    }
+    return results;
+  }
+
+  void _ensureLoaded(List<String> ids) {
+    if (_loadedForIds != null && _listEquals(_loadedForIds!, ids)) return;
+    _loadedForIds = ids;
+    _lastError = null;
+    _future = _loadWishlist(ids).catchError((error) {
+      _lastError = error;
+      return const <Listing>[];
+    });
+  }
+
+  bool _listEquals(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  void _retry() {
+    setState(() {
+      _loadedForIds = null;
+    });
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final wishlistIds = ref.watch(wishlistNotifierProvider);
+    _ensureLoaded(wishlistIds);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Wishlist')),
       body: wishlistIds.isEmpty
           ? _buildEmptyState(context)
           : FutureBuilder<List<Listing>>(
-              future: _loadWishlist(ref),
+              future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
+                }
+                if (_lastError != null) {
+                  return ErrorState(
+                    title: 'Could not load your wishlist',
+                    message: 'Please check your connection and try again.',
+                    onRetry: _retry,
+                  );
                 }
                 final listings = snapshot.data ?? const <Listing>[];
                 if (listings.isEmpty) {

@@ -17,6 +17,7 @@ class Order {
     required this.updatedAt,
     this.commissionAmount,
     this.farmerPayout,
+    this.listingPricePerUnit,
   });
 
   final String id;
@@ -33,6 +34,16 @@ class Order {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// The listing's normal price per unit at the time this order was placed.
+  /// Compare against [pricePerUnit] to see whether the buyer negotiated a
+  /// lower price. Null for orders placed before this field existed.
+  final double? listingPricePerUnit;
+
+  double get pricePerUnit => quantity == 0 ? 0 : totalPrice / quantity;
+
+  bool get isNegotiated =>
+      listingPricePerUnit != null && pricePerUnit < listingPricePerUnit!;
+
   bool get canBeCancelled => status == OrderStatus.pending;
   bool get canBeReviewed => status == OrderStatus.completed;
 
@@ -48,6 +59,7 @@ class Order {
     OrderStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
+    double? listingPricePerUnit,
   }) {
     return Order(
       id: id ?? this.id,
@@ -61,6 +73,7 @@ class Order {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      listingPricePerUnit: listingPricePerUnit ?? this.listingPricePerUnit,
     );
   }
 
@@ -76,6 +89,7 @@ class Order {
         'status': status.name,
         'created_at': timestampToFirestore(createdAt),
         'updated_at': timestampToFirestore(updatedAt),
+        'listing_price_per_unit': listingPricePerUnit,
       };
 
   factory Order.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -101,6 +115,9 @@ class Order {
       status: OrderStatus.values.byName(map['status']! as String),
       createdAt: timestampFromFirestoreRequired(map['created_at']),
       updatedAt: timestampFromFirestoreRequired(map['updated_at']),
+      listingPricePerUnit: map['listing_price_per_unit'] == null
+          ? null
+          : doubleFromFirestore(map['listing_price_per_unit']),
     );
   }
 
@@ -119,7 +136,8 @@ class Order {
             farmerPayout == other.farmerPayout &&
             status == other.status &&
             createdAt == other.createdAt &&
-            updatedAt == other.updatedAt;
+            updatedAt == other.updatedAt &&
+            listingPricePerUnit == other.listingPricePerUnit;
   }
 
   @override
@@ -135,5 +153,6 @@ class Order {
         status,
         createdAt,
         updatedAt,
+        listingPricePerUnit,
       );
 }

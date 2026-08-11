@@ -54,9 +54,22 @@ class OrderService {
     required String consumerId,
     required Listing listing,
     required int quantity,
+    double? offeredPricePerUnit,
   }) async {
     final now = DateTime.now();
-    final totalPrice = listing.pricePerUnit * quantity;
+
+    // A buyer's offer can never go below the seller's stated minimum,
+    // regardless of what the client sent — fall back to the listed price
+    // for anything invalid rather than silently honoring a bad offer.
+    final pricePerUnit = (offeredPricePerUnit != null &&
+            offeredPricePerUnit > 0 &&
+            offeredPricePerUnit <= listing.pricePerUnit &&
+            (listing.minBargainPrice == null ||
+                offeredPricePerUnit >= listing.minBargainPrice!))
+        ? offeredPricePerUnit
+        : listing.pricePerUnit;
+
+    final totalPrice = pricePerUnit * quantity;
     final commission = _commissionService.calculateCommission(totalPrice);
     final payout = _commissionService.calculatePayout(totalPrice);
 
@@ -72,6 +85,7 @@ class OrderService {
       status: OrderStatus.pending,
       createdAt: now,
       updatedAt: now,
+      listingPricePerUnit: listing.pricePerUnit,
     );
 
     final createdOrder = await _runOrder((repository) => repository.create(order));
@@ -93,6 +107,7 @@ class OrderService {
         consumerId: consumerId,
         listing: listing,
         quantity: entry.quantity,
+        offeredPricePerUnit: entry.offeredPricePerUnit,
       );
       orders.add(order);
     }
@@ -117,12 +132,16 @@ class OrderService {
     await _notificationService.createNotification(
       userId: order.consumerId,
       type: NotificationType.orderNew,
-      message: 'Your order for ${listing.productName} has been placed.',
+      message: order.isNegotiated
+          ? 'Your offer of NPR ${order.pricePerUnit.toStringAsFixed(0)}/${listing.unit.name} for ${listing.productName} has been sent to the seller.'
+          : 'Your order for ${listing.productName} has been placed.',
     );
     await _notificationService.createNotification(
       userId: order.farmerId,
       type: NotificationType.orderNew,
-      message: 'New order received for ${listing.productName}.',
+      message: order.isNegotiated
+          ? 'New offer for ${listing.productName}: buyer proposed NPR ${order.pricePerUnit.toStringAsFixed(0)}/${listing.unit.name} (listed at NPR ${listing.pricePerUnit.toStringAsFixed(0)}). Review and accept if the price works for you.'
+          : 'New order received for ${listing.productName}.',
     );
   }
 
@@ -131,13 +150,21 @@ class OrderService {
       await _notificationService.createNotification(
         userId: order.consumerId,
         type: NotificationType.orderAccepted,
-        message: 'Your order ${order.id} has been accepted.',
+        message: 'Good news — your order is on the way!',
       );
     } else if (order.status == OrderStatus.completed) {
       await _notificationService.createNotification(
         userId: order.consumerId,
         type: NotificationType.orderDelivered,
         message: 'Your order ${order.id} has been delivered.',
+      );
+    } else if (order.status == OrderStatus.rejected) {
+      await _notificationService.createNotification(
+        userId: order.consumerId,
+        type: NotificationType.orderNew,
+        message: order.isNegotiated
+            ? 'The seller declined your offer for this order.'
+            : 'Your order ${order.id} was declined by the seller.',
       );
     } else if (order.status == OrderStatus.cancelled) {
       await _notificationService.createNotification(

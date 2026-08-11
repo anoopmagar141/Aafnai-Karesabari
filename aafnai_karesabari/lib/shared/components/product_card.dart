@@ -68,9 +68,19 @@ class ProductCard extends ConsumerWidget {
                             isWish ? Icons.favorite : Icons.favorite_border,
                             color: Colors.redAccent,
                           ),
-                          onPressed: () => ref
-                              .read(wishlistNotifierProvider.notifier)
-                              .toggle(listing.id),
+                          onPressed: () async {
+                            try {
+                              await ref
+                                  .read(wishlistNotifierProvider.notifier)
+                                  .toggle(listing.id);
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Could not update wishlist: $e')),
+                                );
+                              }
+                            }
+                          },
                         );
                       },
                     ),

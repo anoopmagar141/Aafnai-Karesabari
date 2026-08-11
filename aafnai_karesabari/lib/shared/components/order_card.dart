@@ -44,9 +44,56 @@ class _OrderCardResolverState extends ConsumerState<OrderCardResolver> {
       product: _productName ?? widget.order.listingId,
       person: _personName ?? (widget.farmerView ? 'Consumer ${widget.order.consumerId}' : 'Farmer ${widget.order.farmerId}'),
       total: widget.order.totalPrice,
-      pending: widget.order.status == OrderStatus.pending,
+      status: widget.order.status,
     );
   }
 }
 
-class OrderCard extends StatelessWidget { const OrderCard({super.key, required this.id, required this.product, required this.person, required this.total, required this.pending}); final String id, product, person; final double total; final bool pending; @override Widget build(BuildContext context) => Card(child: Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Text('$id · Today', style: const TextStyle(color: AppColors.textMuted)), const Spacer(), StatusBadge(label: pending ? 'Pending' : 'Completed', color: pending ? AppColors.accent : AppColors.primary)]), const SizedBox(height: 10), Text(product, style: const TextStyle(fontWeight: FontWeight.w800)), Text(person, style: const TextStyle(color: AppColors.textMuted)), Text(formatNpr(total), style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primary))]))); }
+class OrderCard extends StatelessWidget {
+  const OrderCard({
+    super.key,
+    required this.id,
+    required this.product,
+    required this.person,
+    required this.total,
+    required this.status,
+  });
+
+  final String id, product, person;
+  final double total;
+  final OrderStatus status;
+
+  (String, Color) get _statusDisplay => switch (status) {
+        OrderStatus.pending => ('Pending', AppColors.accent),
+        OrderStatus.accepted => ('On the way', Colors.blue),
+        OrderStatus.completed => ('Delivered', AppColors.primary),
+        OrderStatus.rejected => ('Declined', Colors.red),
+        OrderStatus.cancelled => ('Cancelled', Colors.grey),
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color) = _statusDisplay;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('$id · Today', style: const TextStyle(color: AppColors.textMuted)),
+                const Spacer(),
+                StatusBadge(label: label, color: color),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(product, style: const TextStyle(fontWeight: FontWeight.w800)),
+            Text(person, style: const TextStyle(color: AppColors.textMuted)),
+            Text(formatNpr(total), style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primary)),
+          ],
+        ),
+      ),
+    );
+  }
+}

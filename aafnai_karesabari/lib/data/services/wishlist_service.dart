@@ -16,15 +16,33 @@ final wishlistNotifierProvider =
 
 class WishlistNotifier extends StateNotifier<List<String>> {
   WishlistNotifier(this._repository) : super(const []) {
-    _subscribe();
+    _subscribeToAuthChanges();
   }
 
   final WishlistRepository _repository;
   StreamSubscription<List<String>>? _subscription;
+  StreamSubscription<User?>? _authSubscription;
+  String? _subscribedUid;
 
-  void _subscribe() {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
+  void _subscribeToAuthChanges() {
+    // Re-subscribe to the wishlist whenever the signed-in user changes,
+    // rather than only once at construction time — this provider can be
+    // created before Firebase confirms the current user, and would
+    // otherwise never pick up the real wishlist for that session.
+    _resubscribe(FirebaseAuth.instance.currentUser?.uid);
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      _resubscribe(user?.uid);
+    });
+  }
+
+  void _resubscribe(String? uid) {
+    if (uid == _subscribedUid) return;
+    _subscribedUid = uid;
+    _subscription?.cancel();
+    if (uid == null) {
+      state = const [];
+      return;
+    }
     _subscription = _repository.watchWishlist(uid).listen((ids) {
       state = ids;
     });
@@ -43,6 +61,7 @@ class WishlistNotifier extends StateNotifier<List<String>> {
   @override
   void dispose() {
     _subscription?.cancel();
+    _authSubscription?.cancel();
     super.dispose();
   }
 }

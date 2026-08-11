@@ -229,6 +229,41 @@ class _FarmerOrdersScreenState extends State<FarmerOrdersScreen> {
               ],
             ),
             const SizedBox(height: 16),
+            if (order.isNegotiated) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.local_offer_outlined, color: Colors.orange.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Buyer offered Rs ${order.pricePerUnit.toStringAsFixed(0)}/unit',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.orange.shade900,
+                            ),
+                          ),
+                          Text(
+                            'Your listed price: Rs ${order.listingPricePerUnit!.toStringAsFixed(0)}/unit',
+                            style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             // Amount
             Container(
               padding: const EdgeInsets.all(12),

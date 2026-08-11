@@ -61,6 +61,16 @@ class ListingService {
       }
     }
 
+    final minBargainPrice = data.minBargainPrice;
+    if (minBargainPrice != null) {
+      if (minBargainPrice <= 0) {
+        errors['minBargainPrice'] = 'Minimum offer price must be greater than zero.';
+      } else if (minBargainPrice > data.price) {
+        errors['minBargainPrice'] =
+            'Minimum offer price cannot be higher than the listed price.';
+      }
+    }
+
     return ListingValidationResult(errors: errors);
   }
 
@@ -175,6 +185,7 @@ class ListingService {
       status: status,
       createdAt: createdAt ?? now,
       updatedAt: now,
+      minBargainPrice: data.minBargainPrice,
     );
   }
 
@@ -206,6 +217,7 @@ class ListingFormData {
     required this.unit,
     required this.location,
     this.photoUrls = const [],
+    this.minBargainPrice,
   });
 
   final String title;
@@ -217,6 +229,10 @@ class ListingFormData {
   final String location;
   final List<String> photoUrls;
 
+  /// Lowest price per unit the seller will accept from a buyer's offer.
+  /// Null means bargaining is disabled for this listing.
+  final double? minBargainPrice;
+
   factory ListingFormData.fromListing(Listing listing) {
     return ListingFormData(
       title: listing.productName,
@@ -227,6 +243,7 @@ class ListingFormData {
       unit: listing.unit,
       location: listing.location ?? '',
       photoUrls: listing.photoUrls,
+      minBargainPrice: listing.minBargainPrice,
     );
   }
 }

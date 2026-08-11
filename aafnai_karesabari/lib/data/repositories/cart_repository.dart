@@ -21,7 +21,7 @@ class SecureCartRepository implements CartRepository {
   Future<List<CartEntry>> loadCart() async {
     final raw = await _storage.read(key: _cartKey);
     if (raw == null || raw.isEmpty) {
-      return const [];
+      return <CartEntry>[];
     }
     return CartEntry.listFromJson(raw);
   }

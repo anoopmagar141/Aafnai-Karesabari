@@ -36,9 +36,11 @@ class _UpdateOrderStatusDialogState extends State<UpdateOrderStatusDialog> {
           OrderStatus.rejected,
         ];
       case OrderStatus.accepted:
+        // Completion is confirmed by the buyer once they've received the
+        // order, not set by the seller — see the buyer's order detail
+        // screen for the "I've received my order" action.
         return [
           OrderStatus.accepted,
-          OrderStatus.completed,
           OrderStatus.cancelled,
         ];
       case OrderStatus.completed:
@@ -55,7 +57,7 @@ class _UpdateOrderStatusDialogState extends State<UpdateOrderStatusDialog> {
       case OrderStatus.pending:
         return 'Awaiting your response';
       case OrderStatus.accepted:
-        return 'You have accepted this order';
+        return 'Accepted — the buyer will be told their order is on the way';
       case OrderStatus.completed:
         return 'Order has been delivered';
       case OrderStatus.rejected:

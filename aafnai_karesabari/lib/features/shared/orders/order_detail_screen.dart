@@ -62,6 +62,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     if (mounted) setState(() => _isProcessing = false);
   }
 
+  Future<void> _confirmReceived() async {
+    if (_isProcessing || _order == null) return;
+    setState(() => _isProcessing = true);
+    await ref.read(orderServiceProvider).updateOrderStatus(_order!.id, OrderStatus.completed);
+    await _loadOrder();
+    if (mounted) setState(() => _isProcessing = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +86,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       Text('Order ${_order!.id}', style: AppTypography.screenTitle),
                       const SizedBox(height: 16),
                       Text('Status: ${_order!.status.name}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                      if (!widget.farmerView && _order!.status == OrderStatus.accepted) ...[
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Your order is on the way!',
+                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
+                        ),
+                      ],
                       const SizedBox(height: 12),
                       Text('Product: ${_listingName ?? _order!.listingId}'),
                       const SizedBox(height: 8),
@@ -85,6 +100,10 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       const SizedBox(height: 8),
                       Text('Quantity: ${_order!.quantity.toStringAsFixed(0)}'),
                       const SizedBox(height: 8),
+                      if (_order!.isNegotiated) ...[
+                        Text('Agreed price: NPR ${_order!.pricePerUnit.toStringAsFixed(0)}/unit (listed at NPR ${_order!.listingPricePerUnit!.toStringAsFixed(0)})'),
+                        const SizedBox(height: 8),
+                      ],
                       Text('Total: NPR ${_order!.totalPrice.toStringAsFixed(0)}'),
                       const SizedBox(height: 8),
                       if (_order!.commissionAmount != null)
@@ -92,6 +111,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                       if (_order!.farmerPayout != null)
                         Text('Farmer payout: NPR ${_order!.farmerPayout!.toStringAsFixed(0)}'),
                       const SizedBox(height: 24),
+                      if (!widget.farmerView && _order!.status == OrderStatus.accepted) ...[
+                        PrimaryButton(
+                          label: 'I\'ve received my order',
+                          onPressed: _isProcessing ? null : _confirmReceived,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       if (!widget.farmerView && _order!.canBeCancelled)
                         PrimaryButton(
                           label: 'Cancel order',

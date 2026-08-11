@@ -30,8 +30,10 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController();
   final _locationController = TextEditingController();
+  final _minBargainPriceController = TextEditingController();
 
   bool _loading = false;
+  bool _allowBargaining = false;
   String? _loadError;
 
   @override
@@ -90,6 +92,9 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
     _quantityController.text =
         draft.quantity == 0 ? '' : draft.quantity.toString();
     _locationController.text = draft.location;
+    _allowBargaining = draft.minBargainPrice != null;
+    _minBargainPriceController.text =
+        draft.minBargainPrice == null ? '' : draft.minBargainPrice!.toStringAsFixed(0);
   }
 
   @override
@@ -99,12 +104,16 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
     _priceController.dispose();
     _quantityController.dispose();
     _locationController.dispose();
+    _minBargainPriceController.dispose();
     super.dispose();
   }
 
   String? _farmerId() => FirebaseAuth.instance.currentUser?.uid ?? 'local-farmer';
 
   void _applyFormToDraft(ListingDraft draft) {
+    final minBargainPrice = _allowBargaining
+        ? double.tryParse(_minBargainPriceController.text.trim())
+        : null;
     ref.read(listingDraftProvider.notifier).updateDraft(
           title: _titleController.text,
           description: _descriptionController.text,
@@ -114,6 +123,8 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
           unit: draft.unit,
           location: _locationController.text,
           photoUrls: draft.photoUrls,
+          minBargainPrice: minBargainPrice,
+          clearMinBargainPrice: !_allowBargaining,
         );
   }
 
@@ -345,6 +356,36 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
                 label: 'Location',
                 controller: _locationController,
               ),
+              const SizedBox(height: 16),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Allow buyers to make offers'),
+                subtitle: const Text('Buyers can propose a lower price per unit for you to accept or reject.'),
+                value: _allowBargaining,
+                onChanged: draft.isSaving
+                    ? null
+                    : (value) => setState(() => _allowBargaining = value),
+              ),
+              if (_allowBargaining) ...[
+                const SizedBox(height: 8),
+                AuthTextField(
+                  label: 'Minimum acceptable price per unit (NPR)',
+                  controller: _minBargainPriceController,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (!_allowBargaining) return null;
+                    final parsed = double.tryParse((value ?? '').trim());
+                    if (parsed == null || parsed <= 0) {
+                      return 'Enter a minimum price greater than zero.';
+                    }
+                    final price = double.tryParse(_priceController.text.trim());
+                    if (price != null && parsed > price) {
+                      return 'Minimum cannot be higher than the listed price.';
+                    }
+                    return null;
+                  },
+                ),
+              ],
               const SizedBox(height: 24),
               _ListingIconPreview(
                 titleListenable: _titleController,

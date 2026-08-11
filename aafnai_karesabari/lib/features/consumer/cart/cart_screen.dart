@@ -101,7 +101,28 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  Text('NPR ${item.listing.pricePerUnit.toStringAsFixed(0)} / ${item.listing.unit.name}'),
+                                  if (item.entry.offeredPricePerUnit != null) ...[
+                                    Row(
+                                      children: [
+                                        Icon(Icons.local_offer_outlined,
+                                            size: 14, color: Colors.orange.shade700),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Your offer: NPR ${item.entry.offeredPricePerUnit!.toStringAsFixed(0)} / ${item.listing.unit.name}',
+                                          style: TextStyle(
+                                            color: Colors.orange.shade700,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Listed price: NPR ${item.listing.pricePerUnit.toStringAsFixed(0)} / ${item.listing.unit.name}',
+                                      style: const TextStyle(
+                                          fontSize: 12, decoration: TextDecoration.lineThrough),
+                                    ),
+                                  ] else
+                                    Text('NPR ${item.listing.pricePerUnit.toStringAsFixed(0)} / ${item.listing.unit.name}'),
                                   const SizedBox(height: 12),
                                   Row(
                                     children: [
@@ -117,7 +138,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                         onPressed: () => _updateQuantity(item, item.entry.quantity + 1),
                                       ),
                                       const Spacer(),
-                                      Text('NPR ${(item.listing.pricePerUnit * item.entry.quantity).toStringAsFixed(0)}'),
+                                      Text('NPR ${((item.entry.offeredPricePerUnit ?? item.listing.pricePerUnit) * item.entry.quantity).toStringAsFixed(0)}'),
                                     ],
                                   ),
                                 ],

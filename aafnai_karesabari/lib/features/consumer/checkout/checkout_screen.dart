@@ -74,6 +74,29 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Text('Order summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                      if (_items.any((item) => item.entry.offeredPricePerUnit != null)) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.orange.shade700, size: 18),
+                              const SizedBox(width: 8),
+                              const Expanded(
+                                child: Text(
+                                  'Items with an offer aren\'t confirmed yet — the seller needs to accept your price first.',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 16),
                       Expanded(
                         child: ListView.separated(
@@ -81,10 +104,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           separatorBuilder: (_, __) => const Divider(height: 24),
                           itemBuilder: (context, index) {
                             final item = _items[index];
+                            final effectivePrice =
+                                item.entry.offeredPricePerUnit ?? item.listing.pricePerUnit;
+                            final isOffer = item.entry.offeredPricePerUnit != null;
                             return ListTile(
                               title: Text(item.listing.productName),
-                              subtitle: Text('${item.entry.quantity} x NPR ${item.listing.pricePerUnit.toStringAsFixed(0)}'),
-                              trailing: Text('NPR ${(item.listing.pricePerUnit * item.entry.quantity).toStringAsFixed(0)}'),
+                              subtitle: Text(
+                                isOffer
+                                    ? '${item.entry.quantity} x NPR ${effectivePrice.toStringAsFixed(0)} (your offer, listed NPR ${item.listing.pricePerUnit.toStringAsFixed(0)})'
+                                    : '${item.entry.quantity} x NPR ${effectivePrice.toStringAsFixed(0)}',
+                              ),
+                              trailing: Text('NPR ${(effectivePrice * item.entry.quantity).toStringAsFixed(0)}'),
                             );
                           },
                         ),

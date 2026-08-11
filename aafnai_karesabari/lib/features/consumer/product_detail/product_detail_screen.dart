@@ -24,6 +24,9 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   late final Future<Listing?> _listingFuture;
+  final _offerController = TextEditingController();
+  bool _makingOffer = false;
+  String? _offerError;
 
   @override
   void initState() {
@@ -31,14 +34,48 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     _listingFuture = ref.read(listingServiceProvider).getById(widget.productId);
   }
 
-  Future<void> _addToCart(Listing listing) async {
-    await ref.read(cartServiceProvider).addItem(listingId: listing.id);
+  @override
+  void dispose() {
+    _offerController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _addToCart(Listing listing, {double? offeredPricePerUnit}) async {
+    await ref.read(cartServiceProvider).addItem(
+          listingId: listing.id,
+          offeredPricePerUnit: offeredPricePerUnit,
+        );
     await ref.read(cartCountProvider.notifier).refreshCartCount();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Added to your basket')),
+      SnackBar(
+        content: Text(offeredPricePerUnit != null
+            ? 'Offer added to your basket'
+            : 'Added to your basket'),
+      ),
     );
     context.go(AppRoutes.cart);
+  }
+
+  void _submitOffer(Listing listing) {
+    final offer = double.tryParse(_offerController.text.trim());
+    final min = listing.minBargainPrice!;
+    if (offer == null || offer <= 0) {
+      setState(() => _offerError = 'Enter a valid price.');
+      return;
+    }
+    if (offer >= listing.pricePerUnit) {
+      setState(() => _offerError =
+          'Enter an amount below the listed price of NPR ${listing.pricePerUnit.toStringAsFixed(0)}.');
+      return;
+    }
+    if (offer < min) {
+      setState(() =>
+          _offerError = 'The seller won\'t accept less than NPR ${min.toStringAsFixed(0)}.');
+      return;
+    }
+    setState(() => _offerError = null);
+    _addToCart(listing, offeredPricePerUnit: offer);
   }
 
   @override
@@ -101,6 +138,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           district: listing.location ?? 'Lalitpur',
                         ),
                       ),
+                      if (listing.acceptsBargaining && listing.stockQuantity > 0) ...[
+                        const SizedBox(height: 24),
+                        _buildBargainSection(listing),
+                      ],
                       const SizedBox(height: 24),
                       RatingsSection(
                         farmerId: listing.farmerId,
@@ -117,6 +158,72 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBargainSection(Listing listing) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.softGreen.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Make an offer', style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          const Text(
+            'This seller accepts offers below the listed price. Send yours and they\'ll accept or decline.',
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: 12),
+          if (!_makingOffer)
+            OutlinedButton.icon(
+              onPressed: () => setState(() => _makingOffer = true),
+              icon: const Icon(Icons.local_offer_outlined),
+              label: const Text('Propose a price'),
+            )
+          else ...[
+            TextField(
+              controller: _offerController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: 'Your offer per ${listing.unit.name} (NPR)',
+                errorText: _offerError,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => setState(() {
+                      _makingOffer = false;
+                      _offerError = null;
+                      _offerController.clear();
+                    }),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _submitOffer(listing),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Add offer to basket'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

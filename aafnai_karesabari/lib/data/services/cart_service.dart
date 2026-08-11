@@ -51,20 +51,34 @@ class CartService {
     await _repository.clearCart();
   }
 
-  Future<void> addItem({required String listingId, int quantity = 1}) async {
-    final entries = await _repository.loadCart();
+  Future<void> addItem({
+    required String listingId,
+    int quantity = 1,
+    double? offeredPricePerUnit,
+  }) async {
+    // Defensive copy: some CartRepository implementations return a fixed-
+    // length list (e.g. an empty `const []`), which would throw on .add().
+    final entries = List<CartEntry>.of(await _repository.loadCart());
     final index = entries.indexWhere((entry) => entry.listingId == listingId);
     if (index == -1) {
-      entries.add(CartEntry(listingId: listingId, quantity: quantity));
+      entries.add(CartEntry(
+        listingId: listingId,
+        quantity: quantity,
+        offeredPricePerUnit: offeredPricePerUnit,
+      ));
     } else {
       final existing = entries[index];
-      entries[index] = existing.copyWith(quantity: existing.quantity + quantity);
+      entries[index] = existing.copyWith(
+        quantity: existing.quantity + quantity,
+        offeredPricePerUnit: offeredPricePerUnit,
+        clearOfferedPrice: offeredPricePerUnit == null,
+      );
     }
     await _repository.saveCart(entries);
   }
 
   Future<void> updateQuantity({required String listingId, required int quantity}) async {
-    final entries = await _repository.loadCart();
+    final entries = List<CartEntry>.of(await _repository.loadCart());
     final index = entries.indexWhere((entry) => entry.listingId == listingId);
     if (index == -1) return;
     if (quantity <= 0) {
@@ -76,7 +90,7 @@ class CartService {
   }
 
   Future<void> removeItem(String listingId) async {
-    final entries = await _repository.loadCart();
+    final entries = List<CartEntry>.of(await _repository.loadCart());
     entries.removeWhere((entry) => entry.listingId == listingId);
     await _repository.saveCart(entries);
   }
@@ -100,7 +114,11 @@ class CartService {
 
   Future<double> getCartTotal() async {
     final items = await getCartItems();
-    return items.fold<double>(0.0,
-        (total, item) => total + item.listing.pricePerUnit * item.entry.quantity);
+    return items.fold<double>(
+        0.0,
+        (total, item) =>
+            total +
+            (item.entry.offeredPricePerUnit ?? item.listing.pricePerUnit) *
+                item.entry.quantity);
   }
 }
