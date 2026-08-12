@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/errors/app_exception.dart';
@@ -86,7 +87,11 @@ class ReviewService {
   Future<T> _runReview<T>(Future<T> Function(ReviewRepository repository) action) async {
     try {
       return await action(_reviewRepository);
-    } on AppException {
+    } on AppException catch (error) {
+      // See NotificationService for why this is logged: silently falling
+      // back to the (empty) local cache hides real bugs like a missing
+      // Firestore composite index behind an innocent "no reviews yet".
+      debugPrint('ReviewService: Firestore call failed, falling back to local cache: $error');
       return await action(_localReviewRepository);
     }
   }

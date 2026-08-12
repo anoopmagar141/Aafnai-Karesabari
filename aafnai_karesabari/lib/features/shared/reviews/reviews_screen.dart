@@ -85,6 +85,10 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
             comment: comment.isEmpty ? null : comment,
           );
       await _loadData();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review submitted successfully — thank you!')),
+      );
     } catch (error) {
       if (!mounted) return;
       setState(() {

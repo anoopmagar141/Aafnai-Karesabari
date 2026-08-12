@@ -79,7 +79,13 @@ class NotificationService {
   Future<T> _runNotification<T>(Future<T> Function(NotificationRepository repository) action) async {
     try {
       return await action(_notificationRepository);
-    } on Exception {
+    } on Exception catch (error, stack) {
+      // Falling back to the (empty) local cache is intentional resilience
+      // when Firestore is genuinely unreachable, but it also silently
+      // hides real bugs (missing index, bad security rule) behind an
+      // innocent-looking empty list. Log the real cause so it's visible
+      // in the dev console instead of only ever seeing "no notifications".
+      debugPrint('NotificationService: Firestore call failed, falling back to local cache: $error\n$stack');
       return await action(_localNotificationRepository);
     }
   }
