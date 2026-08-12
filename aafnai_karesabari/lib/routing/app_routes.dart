@@ -114,9 +114,15 @@ String? resolveRedirectPath({
   // The seller dashboard/listings/orders/earnings flow lives under /farmer/
   // and requires an approved seller account. The application form itself
   // lives under /seller/ — that's precisely where a not-yet-approved user
-  // needs to land, so it's excluded from this guard.
+  // needs to land, so it's excluded from this guard. Admins are exempt too:
+  // the "Seed Sample Listings" action creates listings owned by the admin's
+  // own uid, so an admin needs to reach /farmer/orders to accept/reject
+  // orders placed against that catalog — otherwise those orders would have
+  // no one able to act on them at all.
   final isFarmerRoute = path.startsWith('/farmer/');
-  if (isFarmerRoute && !onboardingController.sellerApproved) {
+  if (isFarmerRoute &&
+      !onboardingController.sellerApproved &&
+      !onboardingController.isAdmin) {
     return AppRoutes.consumerHome;
   }
 

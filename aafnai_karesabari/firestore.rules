@@ -40,8 +40,13 @@ service cloud.firestore {
       allow update, delete: if owns(resource.data.farmer_id);
     }
     match /orders/{orderId} {
-      allow read: if signedIn() && (owns(resource.data.farmer_id) || owns(resource.data.consumer_id));
-      allow write: if signedIn();
+      allow read: if signedIn() && (owns(resource.data.farmer_id) || owns(resource.data.consumer_id) || isAdmin());
+      allow create: if signedIn() && request.resource.data.consumer_id == request.auth.uid;
+      // Only the order's own buyer/seller (or an admin, for dispute
+      // resolution) may change it — previously any signed-in user could
+      // write to any order regardless of involvement.
+      allow update, delete: if signedIn() &&
+        (owns(resource.data.farmer_id) || owns(resource.data.consumer_id) || isAdmin());
     }
     match /reviews/{reviewId} { allow read: if true; allow write: if signedIn(); }
     match /price_history/{priceId} { allow read: if true; allow write: if false; }

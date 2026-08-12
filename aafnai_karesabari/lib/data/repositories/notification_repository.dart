@@ -42,6 +42,7 @@ abstract class NotificationRepository {
   Future<AppNotification?> getById(String notificationId);
   Stream<AppNotification?> stream(String notificationId);
   Future<List<AppNotification>> list({required NotificationListFilter filter});
+  Stream<int> streamUnreadCount(String userId);
 }
 
 class FirestoreNotificationRepository implements NotificationRepository {
@@ -108,6 +109,15 @@ class FirestoreNotificationRepository implements NotificationRepository {
         final snapshot = await query.get();
         return mapQuerySnapshot(snapshot, AppNotification.fromFirestore);
       }, message: 'Unable to load notifications.');
+
+  @override
+  Stream<int> streamUnreadCount(String userId) {
+    return _notifications
+        .where('user_id', isEqualTo: userId)
+        .where('is_read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
 }
 
 class LocalNotificationRepository implements NotificationRepository {
@@ -196,5 +206,13 @@ class LocalNotificationRepository implements NotificationRepository {
       return results.take(limit).toList(growable: false);
     }
     return results;
+  }
+
+  @override
+  Stream<int> streamUnreadCount(String userId) async* {
+    await _ensureInitialized();
+    yield _notifications.values
+        .where((n) => n.userId == userId && !n.isRead)
+        .length;
   }
 }

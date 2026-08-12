@@ -6,6 +6,13 @@ import 'package:aafnai_karesabari/routing/app_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeUserRepository implements UserRepository {
+  FakeUserRepository({this.profile});
+
+  /// When set, getById returns this regardless of the requested id — enough
+  /// for tests that need syncWithAuthState to populate isAdmin/profile
+  /// fields from a known profile.
+  final AppUser? profile;
+
   @override
   Future<AppUser> create(AppUser user) async => user;
 
@@ -16,7 +23,7 @@ class FakeUserRepository implements UserRepository {
   Future<void> delete(String userId) async {}
 
   @override
-  Future<AppUser?> getById(String userId) async => null;
+  Future<AppUser?> getById(String userId) async => profile;
 
   @override
   Stream<AppUser?> stream(String userId) async* {
@@ -182,6 +189,38 @@ void main() {
           reason: '"I already have an account" must show sign-in even with no language chosen yet');
       expect(register, AppRoutes.languageSelect,
           reason: 'Register still requires picking a language first');
+    });
+
+    test('an admin (not an approved seller) can still reach /farmer/* to manage the seeded catalog\'s orders', () async {
+      final mockUser = MockUser(uid: 'admin-1', email: 'admin@test.com');
+      final controller = OnboardingController(
+        auth: MockFirebaseAuth(),
+        userRepository: FakeUserRepository(
+          profile: AppUser(
+            id: 'admin-1',
+            name: 'Admin',
+            phone: '',
+            language: AppLanguage.en,
+            email: 'admin@test.com',
+            createdAt: DateTime(2026, 1, 1),
+            profileCompleted: true,
+            isAdmin: true,
+            // Deliberately not an approved seller — the admin's bypass
+            // must not depend on also applying to sell.
+            sellerStatus: 'none',
+          ),
+        ),
+        subscribeToAuthChanges: false,
+      )..isLoadingLanguage = false;
+      controller.selectLanguage('en');
+      await controller.syncWithAuthState(mockUser);
+
+      final redirect = resolveRedirectPath(
+        path: AppRoutes.farmerHome,
+        onboardingController: controller,
+      );
+
+      expect(redirect, isNull);
     });
   });
 }

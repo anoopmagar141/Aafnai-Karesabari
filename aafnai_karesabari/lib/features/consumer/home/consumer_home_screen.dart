@@ -1,14 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/typography.dart';
+import '../../../data/models/app_user.dart';
 import '../../../data/models/listing.dart';
 import '../../../data/models/market_price.dart';
 import '../../../data/repositories/listing_repository.dart';
 import '../../../data/repositories/market_price_repository.dart';
+import '../../../data/repositories/user_repository.dart';
 import '../../../data/services/listing_service.dart';
+import '../../../data/services/notification_service.dart';
+import '../../../routing/app_routes.dart';
 import '../../../shared/components/category_chip.dart';
 import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/error_state.dart';
@@ -26,6 +31,7 @@ class ConsumerHomeScreen extends ConsumerStatefulWidget {
 class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
   late final Future<List<Listing>> _listingsFuture;
   late final Future<List<MarketPrice>> _pricesFuture;
+  late final Future<AppUser?> _userFuture;
 
   @override
   void initState() {
@@ -38,6 +44,10 @@ class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
     _pricesFuture = priceRepository.list(
       filter: const MarketPriceListFilter(limit: 3),
     );
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    _userFuture = uid == null
+        ? Future.value(null)
+        : FirestoreUserRepository().getById(uid);
   }
 
   Future<void> _refresh() async {
@@ -57,13 +67,62 @@ class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.location_on_outlined),
-            SizedBox(width: 4),
-            Text('Lalitpur, Nepal'),
-          ],
+        title: FutureBuilder<AppUser?>(
+          future: _userFuture,
+          builder: (context, snapshot) {
+            final user = snapshot.data;
+            final location = [user?.district, user?.province]
+                .where((part) => part != null && part.isNotEmpty)
+                .join(', ');
+            return Row(
+              children: [
+                const Icon(Icons.location_on_outlined),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    location.isNotEmpty ? location : (user?.location ?? 'Set your location'),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
+        actions: [
+          Consumer(
+            builder: (context, ref, _) {
+              final unread = ref.watch(unreadNotificationCountProvider).value ?? 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    tooltip: 'Notifications',
+                    onPressed: () => context.push(AppRoutes.notifications),
+                  ),
+                  if (unread > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.redAccent,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Text(
+                          unread > 9 ? '9+' : '$unread',
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,

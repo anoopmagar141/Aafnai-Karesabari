@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../data/models/listing.dart';
 import '../../../data/repositories/listing_repository.dart';
+import '../../../data/services/listing_service.dart';
 import '../../../shared/components/category_chip.dart';
 import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/error_state.dart';
 import '../../../shared/components/product_card.dart';
 import '../../../shared/components/search_bar.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key, this.initialCategory});
   final ListingCategory? initialCategory;
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
   ListingCategory? _selectedCategory;
   late Future<List<Listing>> _future;
@@ -27,14 +29,23 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     _selectedCategory = widget.initialCategory;
     _future = _loadListings();
+    _controller.addListener(() => setState(() {}));
   }
 
-  Future<List<Listing>> _loadListings() async {
-    final repository = LocalListingRepository();
-    final listings = await repository.list(
-      filter: const ListingListFilter(status: ListingStatus.active, limit: 20),
-    );
-    return listings;
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<List<Listing>> _loadListings() {
+    // Same real data source as Home — searching against the local fallback
+    // repository directly would show demo listings tied to farmer IDs that
+    // don't correspond to any real seller, so orders placed against them
+    // could never be accepted by anyone.
+    return ref.read(listingServiceProvider).list(
+          filter: const ListingListFilter(status: ListingStatus.active, limit: 50),
+        );
   }
 
   Future<void> _refresh() async {
@@ -80,8 +91,8 @@ class _SearchScreenState extends State<SearchScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 AppSearchBar(
-                  onTap: () {},
-                  readOnly: false,
+                  controller: _controller,
+                  onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

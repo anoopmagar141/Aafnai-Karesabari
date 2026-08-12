@@ -51,6 +51,11 @@ class FakeNotificationRepository implements NotificationRepository {
   Future<void> update(AppNotification notification) async {
     storage[notification.id] = notification;
   }
+
+  @override
+  Stream<int> streamUnreadCount(String userId) async* {
+    yield storage.values.where((n) => n.userId == userId && !n.isRead).length;
+  }
 }
 
 class FakeOrderRepository implements OrderRepository {

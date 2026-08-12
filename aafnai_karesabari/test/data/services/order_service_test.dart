@@ -69,6 +69,11 @@ class FakeNotificationRepository implements NotificationRepository {
     final index = sent.indexWhere((n) => n.id == notification.id);
     if (index != -1) sent[index] = notification;
   }
+
+  @override
+  Stream<int> streamUnreadCount(String userId) async* {
+    yield sent.where((n) => n.userId == userId && !n.isRead).length;
+  }
 }
 
 void main() {

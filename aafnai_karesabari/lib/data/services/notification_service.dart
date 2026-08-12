@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,13 @@ import '../repositories/notification_repository.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return NotificationService();
+});
+
+/// Live unread-notification count for the signed-in user, for badges.
+final unreadNotificationCountProvider = StreamProvider<int>((ref) {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return Stream.value(0);
+  return ref.watch(notificationServiceProvider).streamUnreadCount(uid);
 });
 
 class NotificationService {
@@ -58,6 +66,14 @@ class NotificationService {
 
   Future<AppNotification?> getNotificationById(String notificationId) async {
     return _runNotification((repository) => repository.getById(notificationId));
+  }
+
+  Stream<int> streamUnreadCount(String userId) {
+    try {
+      return _notificationRepository.streamUnreadCount(userId);
+    } catch (_) {
+      return _localNotificationRepository.streamUnreadCount(userId);
+    }
   }
 
   Future<T> _runNotification<T>(Future<T> Function(NotificationRepository repository) action) async {

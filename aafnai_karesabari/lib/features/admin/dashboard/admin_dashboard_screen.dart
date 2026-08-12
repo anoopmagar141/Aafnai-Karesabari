@@ -185,6 +185,15 @@ class AdminDashboardScreen extends ConsumerWidget {
             );
           },
         ),
+        _buildActionTile(
+          context,
+          icon: Icons.receipt_long,
+          title: 'Manage Seeded Catalog Orders',
+          subtitle: 'Accept or reject orders placed against the sample listings',
+          onTap: () {
+            context.push('/farmer/orders');
+          },
+        ),
       ],
     );
   }
