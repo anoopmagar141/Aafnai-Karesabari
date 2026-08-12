@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/colors.dart';
 import '../../../data/models/order.dart';
-import '../../../data/repositories/order_repository.dart';
+import '../../../data/services/order_service.dart';
 import 'update_order_status_dialog.dart';
 
 class FarmerOrdersScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class FarmerOrdersScreen extends StatefulWidget {
 }
 
 class _FarmerOrdersScreenState extends State<FarmerOrdersScreen> {
-  final OrderRepository _orderRepo = FirestoreOrderRepository();
+  final OrderService _orderService = OrderService();
   bool _isLoading = true;
   List<Order> _orders = [];
   String? _error;
@@ -33,9 +33,7 @@ class _FarmerOrdersScreenState extends State<FarmerOrdersScreen> {
     });
     final farmerId = FirebaseAuth.instance.currentUser?.uid ?? '';
     try {
-      final orders = await _orderRepo.list(
-        filter: OrderListFilter(farmerId: farmerId),
-      );
+      final orders = await _orderService.listFarmerOrders(farmerId);
       if (!mounted) return;
       setState(() {
         _orders = orders;
@@ -50,18 +48,31 @@ class _FarmerOrdersScreenState extends State<FarmerOrdersScreen> {
     }
   }
 
+  String _successMessage(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.accepted:
+        return 'Order accepted — the buyer has been notified it\'s on the way.';
+      case OrderStatus.rejected:
+        return 'Order declined — the buyer has been notified.';
+      case OrderStatus.cancelled:
+        return 'Order cancelled.';
+      case OrderStatus.completed:
+        return 'Order marked as delivered.';
+      case OrderStatus.pending:
+        return 'Order status updated.';
+    }
+  }
+
   Future<void> _updateStatus(Order order, OrderStatus newStatus) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final updated = order.copyWith(
-        status: newStatus,
-        updatedAt: DateTime.now(),
-      );
-      await _orderRepo.update(updated);
+      // Goes through OrderService (not the repository directly) so the
+      // buyer's status-change notification actually gets created.
+      await _orderService.updateOrderStatus(order.id, newStatus);
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Order status updated'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(_successMessage(newStatus)),
+          duration: const Duration(seconds: 3),
         ),
       );
       await _loadOrders();

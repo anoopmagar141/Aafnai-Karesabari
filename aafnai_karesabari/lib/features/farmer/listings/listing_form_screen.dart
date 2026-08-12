@@ -144,7 +144,7 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
     if (!mounted || listing == null) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Draft saved')),
+      const SnackBar(content: Text('Draft saved successfully')),
     );
     context.pop();
   }
@@ -181,7 +181,7 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
     if (!mounted || listing == null) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Listing published')),
+      const SnackBar(content: Text('Listing published successfully — buyers can now see it')),
     );
     context.pop();
   }
@@ -202,7 +202,7 @@ class _ListingFormScreenState extends ConsumerState<ListingFormScreen> {
             await ref.read(listingServiceProvider).deleteListing(listingId);
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Listing deleted')),
+              const SnackBar(content: Text('Listing deleted successfully')),
             );
             context.pop();
           } on AppException catch (error) {

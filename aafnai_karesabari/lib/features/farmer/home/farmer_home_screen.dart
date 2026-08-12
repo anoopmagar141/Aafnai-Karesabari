@@ -155,7 +155,7 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
                     width: 165,
                     child: ProductCard(
                       listing: listings[index],
-                      onTap: () => context.go('/farmer/listings/${listings[index].id}/edit'),
+                      onTap: () => context.push('/farmer/listings/${listings[index].id}/edit'),
                     ),
                   ),
                 ),
