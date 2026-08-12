@@ -25,7 +25,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final AuthService _auth = FirebaseAuthService();
   final SecureTokenStore _tokenStore = SecureTokenStore();
   final UserRepository _userRepo = FirestoreUserRepository();
-  final GlobalKey _settingsSectionKey = GlobalKey();
   bool _signingOut = false;
 
   String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -37,15 +36,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _scrollToSettings() {
-    final settingsContext = _settingsSectionKey.currentContext;
-    if (settingsContext != null) {
-      Scrollable.ensureVisible(
-        settingsContext,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
-    }
+  void _openSettingsSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _SettingsSheet(
+        signingOut: _signingOut,
+        onComingSoon: _showComingSoon,
+        onLogout: () async {
+          Navigator.pop(sheetContext);
+          await _confirmLogout();
+        },
+      ),
+    );
   }
 
   @override
@@ -72,7 +76,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
-            onPressed: _scrollToSettings,
+            onPressed: _openSettingsSheet,
           )
         ],
       ),
@@ -107,7 +111,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _buildSocialLinks(user),
               ],
               const SizedBox(height: 16),
-              Container(key: _settingsSectionKey, child: _buildSettingsSection()),
             ],
           );
         },
@@ -162,6 +165,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     _buildBadge('Buyer', Colors.blue),
                     if (user.sellerVerified)
                       _buildBadge('Verified Seller', Colors.green),
+                    if (user.isAdmin) _buildBadge('Admin', Colors.purple),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -550,43 +554,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingsSection() {
-    return _buildSectionCard(
-      title: 'Settings',
-      child: Column(
-        children: [
-          _buildSettingsTile(Icons.language, 'Language', subtitle: 'Change language during a future update'),
-          _buildSettingsTile(Icons.privacy_tip_outlined, 'Privacy', onTap: _showComingSoon),
-          _buildSettingsTile(Icons.security_outlined, 'Security', onTap: _showComingSoon),
-          _buildSettingsTile(Icons.lock_outline, 'Change Password', onTap: _showComingSoon),
-          _buildSettingsTile(Icons.notifications_outlined, 'Notification Settings', onTap: _showComingSoon),
-          _buildSettingsTile(Icons.help_outline, 'Help & Support', onTap: _showComingSoon),
-          _buildSettingsTile(Icons.info_outline, 'About', onTap: _showComingSoon),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: Text(_signingOut ? 'Signing out...' : 'Log out',
-                style: const TextStyle(color: Colors.red)),
-            enabled: !_signingOut,
-            onTap: _confirmLogout,
-            contentPadding: EdgeInsets.zero,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile(IconData icon, String title, {String? subtitle, VoidCallback? onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.grey.shade700),
-      title: Text(title, style: const TextStyle(fontSize: 15)),
-      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
-      trailing: const Icon(Icons.chevron_right, size: 20),
-      onTap: onTap,
-      contentPadding: EdgeInsets.zero,
-    );
-  }
-
   Widget _buildSectionCard({required String title, required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -659,5 +626,99 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } finally {
       if (mounted) setState(() => _signingOut = false);
     }
+  }
+}
+
+class _SettingsSheet extends StatelessWidget {
+  const _SettingsSheet({
+    required this.signingOut,
+    required this.onComingSoon,
+    required this.onLogout,
+  });
+
+  final bool signingOut;
+  final VoidCallback onComingSoon;
+  final VoidCallback onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.only(top: 40),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  const Text(
+                    'Settings',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  children: [
+                    _tile(Icons.language, 'Language',
+                        subtitle: 'Change language during a future update'),
+                    _tile(Icons.privacy_tip_outlined, 'Privacy', onTap: onComingSoon),
+                    _tile(Icons.security_outlined, 'Security', onTap: onComingSoon),
+                    _tile(Icons.lock_outline, 'Change Password', onTap: onComingSoon),
+                    _tile(Icons.notifications_outlined, 'Notification Settings', onTap: onComingSoon),
+                    _tile(Icons.help_outline, 'Help & Support', onTap: onComingSoon),
+                    _tile(Icons.info_outline, 'About', onTap: onComingSoon),
+                    const Divider(height: 24),
+                    ListTile(
+                      leading: const Icon(Icons.logout, color: Colors.red),
+                      title: Text(
+                        signingOut ? 'Signing out...' : 'Log out',
+                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                      ),
+                      enabled: !signingOut,
+                      onTap: onLogout,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tile(IconData icon, String title, {String? subtitle, VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.grey.shade700),
+      title: Text(title, style: const TextStyle(fontSize: 15)),
+      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: onTap,
+    );
   }
 }

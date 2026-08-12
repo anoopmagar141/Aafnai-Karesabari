@@ -34,6 +34,8 @@ import '../features/shared/reviews/reviews_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 import '../shared/components/bottom_nav_bar.dart';
 import '../features/admin/seller_applications/seller_applications_screen.dart';
+import '../features/admin/orders/admin_orders_screen.dart';
+import '../features/admin/users/admin_users_screen.dart';
 
 export 'app_routes.dart';
 
@@ -147,6 +149,12 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
     GoRoute(
         path: AppRoutes.adminSellerApplications,
         builder: (_, __) => const SellerApplicationsScreen()),
+    GoRoute(
+        path: AppRoutes.adminOrders,
+        builder: (_, __) => const AdminOrdersScreen()),
+    GoRoute(
+        path: AppRoutes.adminUsers,
+        builder: (_, __) => const AdminUsersScreen()),
   ],
 );
 

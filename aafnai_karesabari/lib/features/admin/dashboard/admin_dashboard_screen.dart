@@ -5,6 +5,10 @@ import '../../onboarding/onboarding_controller.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../routing/app_routes.dart';
+import '../../../data/models/app_user.dart';
+import '../../../data/repositories/user_repository.dart';
+import '../../../data/repositories/seller_application_repository.dart';
+import '../../../data/models/seller_application.dart';
 import '../../../data/services/listing_seed_service.dart';
 
 class AdminDashboardScreen extends ConsumerWidget {
@@ -19,11 +23,22 @@ class AdminDashboardScreen extends ConsumerWidget {
         title: const Text('Developer Dashboard'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        // Settings opens this screen with context.go(), which replaces the
+        // nav stack — there's nothing to pop back to, so this needs an
+        // explicit way back to the regular buyer/seller app.
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to my account',
+          onPressed: () {
+            context.go(AppRoutes.consumerHome);
+          },
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Profile',
             onPressed: () {
-              onboarding.signOut();
+              context.push(AppRoutes.editProfile);
             },
           ),
         ],
@@ -37,7 +52,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             Text('Platform Overview', style: AppTypography.sectionTitle),
             const SizedBox(height: 16),
-            _buildStatCards(),
+            _buildStatCards(ref),
             const SizedBox(height: 24),
             Text('Quick Actions', style: AppTypography.sectionTitle),
             const SizedBox(height: 16),
@@ -97,24 +112,37 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCards() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-              'Users', '0', Icons.people, Colors.blue),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-              'Pending', '0', Icons.assignment_late, Colors.orange),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-              'Sellers', '0', Icons.storefront, Colors.green),
-        ),
-      ],
+  Widget _buildStatCards(WidgetRef ref) {
+    return FutureBuilder<List<AppUser>>(
+      future: FirestoreUserRepository().list(),
+      builder: (context, userSnapshot) {
+        final users = userSnapshot.data;
+        final usersLabel = users == null ? '…' : '${users.length}';
+        final sellersLabel =
+            users == null ? '…' : '${users.where((u) => u.sellerStatus == 'approved').length}';
+
+        return Row(
+          children: [
+            Expanded(
+              child: _buildStatCard('Users', usersLabel, Icons.people, Colors.blue),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StreamBuilder<List<SellerApplication>>(
+                stream: ref.read(sellerApplicationRepositoryProvider).getPendingApplicationsStream(),
+                builder: (context, snapshot) {
+                  final label = snapshot.data == null ? '…' : '${snapshot.data!.length}';
+                  return _buildStatCard('Pending', label, Icons.assignment_late, Colors.orange);
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard('Sellers', sellersLabel, Icons.storefront, Colors.green),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -156,9 +184,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           title: 'User Management',
           subtitle: 'View and manage platform users',
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('User Management coming soon')),
-            );
+            context.push(AppRoutes.adminUsers);
           },
         ),
         _buildActionTile(
@@ -188,6 +214,15 @@ class AdminDashboardScreen extends ConsumerWidget {
         _buildActionTile(
           context,
           icon: Icons.receipt_long,
+          title: 'All Orders',
+          subtitle: 'View and manage every order across all sellers, for dispute handling',
+          onTap: () {
+            context.push(AppRoutes.adminOrders);
+          },
+        ),
+        _buildActionTile(
+          context,
+          icon: Icons.storefront_outlined,
           title: 'Manage Seeded Catalog Orders',
           subtitle: 'Accept or reject orders placed against the sample listings',
           onTap: () {

@@ -50,6 +50,11 @@ class OrderService {
         (repository) => repository.getById(orderId),
       );
 
+  /// Unfiltered listing across every buyer/seller, for admin oversight.
+  Future<List<Order>> listAllOrders({int limit = 200}) => _runOrder(
+        (repository) => repository.list(filter: OrderListFilter(limit: limit)),
+      );
+
   Future<Order> createOrder({
     required String consumerId,
     required Listing listing,

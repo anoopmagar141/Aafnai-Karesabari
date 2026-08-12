@@ -22,6 +22,8 @@ abstract final class AppRoutes {
   static const product = '/consumer/product/:id';
   static const adminDashboard = '/admin/dashboard';
   static const adminSellerApplications = '/admin/seller-applications';
+  static const adminOrders = '/admin/orders';
+  static const adminUsers = '/admin/users';
 }
 
 String? resolveRedirectPath({
