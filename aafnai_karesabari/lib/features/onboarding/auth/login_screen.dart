@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign in')),
+      appBar: AppBar(title: const Text('Login')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
               const SizedBox(height: 24),
               PrimaryButton(
-                  label: _submitting ? 'Signing in...' : 'Sign in',
+                  label: _submitting ? 'Logging in...' : 'Login',
                   onPressed: _submitting ? null : _signIn),
               const SizedBox(height: 12),
               TextButton(
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
           email: email, password: password);
       final user = userCredential.user;
       if (user == null) {
-        _showError('Unable to sign in right now.');
+        _showError('Unable to log in right now.');
         return;
       }
 
@@ -116,12 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
       await onboardingController.syncWithAuthState(user);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed in successfully.')));
+          const SnackBar(content: Text('Logged in successfully.')));
       // Router automatically redirects based on authStateChanges
     } on FirebaseAuthException catch (error) {
       _showError(_firebaseMessage(error));
     } catch (_) {
-      _showError('Could not sign in. Please try again.');
+      _showError('Could not log in. Please try again.');
     } finally {
       if (mounted) {
         setState(() => _submitting = false);
@@ -135,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
         'wrong-password' => 'The password is incorrect.',
         'invalid-credential' => 'Incorrect email or password.',
         'user-disabled' => 'This account has been disabled.',
-        _ => error.message ?? 'Could not sign in. Please try again.',
+        _ => error.message ?? 'Could not log in. Please try again.',
       };
 
   void _showError(String message) {

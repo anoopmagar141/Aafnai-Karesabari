@@ -209,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                     onPressed: () => context.go(AppRoutes.login),
-                    child: const Text('Already have an account? Sign in')),
+                    child: const Text('Already have an account? Login')),
               ],
             ),
           ),

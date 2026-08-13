@@ -269,6 +269,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         crossAxisCount: 3,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
+        // Two-word labels ("Shopping Cart", "Saved Addresses", "Support
+        // Center") wrap to two lines at this column width; square cells
+        // (the GridView.count default) were a few pixels too short for
+        // that second line, causing a debug overflow banner.
+        childAspectRatio: 0.8,
         children: [
           _buildActionItem(Icons.inventory_2_outlined, 'My Orders', () {
             context.go('/consumer/orders');
@@ -311,6 +316,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Text(
             label,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ],
