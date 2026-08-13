@@ -6,7 +6,7 @@ import '../../../data/services/seller_application_service.dart';
 import '../../onboarding/onboarding_controller.dart';
 
 class SellerApplicationsScreen extends ConsumerWidget {
-  const SellerApplicationsScreen({Key? key}) : super(key: key);
+  const SellerApplicationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -63,7 +63,7 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
           const SizedBox(height: 20),
           const EarningsCard(summary: true),
           const SizedBox(height: 24),
-          Text('Quick actions', style: AppTypography.sectionTitle),
+          const Text('Quick actions', style: AppTypography.sectionTitle),
           const SizedBox(height: 12),
           GridView.count(
             shrinkWrap: true,

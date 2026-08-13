@@ -148,7 +148,7 @@ class ProductCard extends ConsumerWidget {
 
         return Row(
           children: [
-            Icon(Icons.star, size: 14, color: AppColors.accent),
+            const Icon(Icons.star, size: 14, color: AppColors.accent),
             const SizedBox(width: 3),
             Text(
               '${avgRating.toStringAsFixed(1)} (${reviews.length})',

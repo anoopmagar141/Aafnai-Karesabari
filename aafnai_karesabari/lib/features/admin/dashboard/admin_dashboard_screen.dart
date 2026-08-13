@@ -50,11 +50,11 @@ class AdminDashboardScreen extends ConsumerWidget {
           children: [
             _buildAdminProfileCard(onboarding),
             const SizedBox(height: 24),
-            Text('Platform Overview', style: AppTypography.sectionTitle),
+            const Text('Platform Overview', style: AppTypography.sectionTitle),
             const SizedBox(height: 16),
             _buildStatCards(ref),
             const SizedBox(height: 24),
-            Text('Quick Actions', style: AppTypography.sectionTitle),
+            const Text('Quick Actions', style: AppTypography.sectionTitle),
             const SizedBox(height: 16),
             _buildQuickActions(context, ref, onboarding),
           ],
@@ -82,7 +82,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Admin/Developer', style: AppTypography.cardTitle),
+                  const Text('Admin/Developer', style: AppTypography.cardTitle),
                   const SizedBox(height: 4),
                   Text(
                     onboarding.email ?? 'Unknown Email',
@@ -97,9 +97,9 @@ class AdminDashboardScreen extends ConsumerWidget {
                 color: AppColors.primary.withAlpha(20),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
+              child: const Text(
                 'Active',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,

@@ -132,68 +132,70 @@ class _UpdateOrderStatusDialogState extends State<UpdateOrderStatusDialog> {
             ),
           ),
           const SizedBox(height: 12),
-          Column(
-            children: availableStatuses
-                .map(
-                  (status) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedStatus = status),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(
+          RadioGroup<OrderStatus>(
+            groupValue: _selectedStatus,
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedStatus = value);
+              }
+            },
+            child: Column(
+              children: availableStatuses
+                  .map(
+                    (status) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedStatus = status),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: _selectedStatus == status
+                                  ? _getStatusColor(status)
+                                  : Colors.grey.shade300,
+                              width: _selectedStatus == status ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
                             color: _selectedStatus == status
-                                ? _getStatusColor(status)
-                                : Colors.grey.shade300,
-                            width: _selectedStatus == status ? 2 : 1,
+                                ? _getStatusColor(status).withValues(alpha: 0.1)
+                                : Colors.transparent,
                           ),
-                          borderRadius: BorderRadius.circular(8),
-                          color: _selectedStatus == status
-                              ? _getStatusColor(status).withValues(alpha: 0.1)
-                              : Colors.transparent,
-                        ),
-                        child: Row(
-                          children: [
-                            Radio<OrderStatus>(
-                              value: status,
-                              groupValue: _selectedStatus,
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() => _selectedStatus = value);
-                                }
-                              },
-                              activeColor: _getStatusColor(status),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    status.name.toUpperCase(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: _getStatusColor(status),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _getStatusDescription(status),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
+                          child: Row(
+                            children: [
+                              Radio<OrderStatus>(
+                                value: status,
+                                activeColor: _getStatusColor(status),
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      status.name.toUpperCase(),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: _getStatusColor(status),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _getStatusDescription(status),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-                .toList(),
+                  )
+                  .toList(),
+            ),
           ),
           const SizedBox(height: 16),
 
