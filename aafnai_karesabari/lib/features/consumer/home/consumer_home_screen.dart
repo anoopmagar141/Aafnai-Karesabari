@@ -31,7 +31,7 @@ class ConsumerHomeScreen extends ConsumerStatefulWidget {
 class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
   late final Future<List<Listing>> _listingsFuture;
   late final Future<List<MarketPrice>> _pricesFuture;
-  late final Future<AppUser?> _userFuture;
+  late final Stream<AppUser?> _userStream;
 
   @override
   void initState() {
@@ -44,10 +44,17 @@ class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
     _pricesFuture = priceRepository.list(
       filter: const MarketPriceListFilter(limit: 3),
     );
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    _userFuture = uid == null
-        ? Future.value(null)
-        : FirestoreUserRepository().getById(uid);
+    // A one-shot Future captured here would freeze on whatever
+    // FirebaseAuth.instance.currentUser happened to be at this exact
+    // moment — null if auth state hadn't finished settling yet (common
+    // right after login/app cold-start) — and never retry, since
+    // initState only runs once. A stream that follows auth state changes
+    // fixes both that race and cases where the user doc is still being
+    // written when this screen first mounts.
+    final userRepository = FirestoreUserRepository();
+    _userStream = FirebaseAuth.instance.authStateChanges().asyncExpand(
+          (user) => user == null ? Stream.value(null) : userRepository.stream(user.uid),
+        );
   }
 
   Future<void> _refresh() async {
@@ -67,8 +74,8 @@ class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: FutureBuilder<AppUser?>(
-          future: _userFuture,
+        title: StreamBuilder<AppUser?>(
+          stream: _userStream,
           builder: (context, snapshot) {
             final user = snapshot.data;
             final location = [user?.district, user?.province]
@@ -129,9 +136,9 @@ class _ConsumerHomeScreenState extends ConsumerState<ConsumerHomeScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            GestureDetector(
+            AppSearchBar(
+              readOnly: true,
               onTap: () => context.push('/consumer/search'),
-              child: const AppSearchBar(readOnly: true),
             ),
             const SizedBox(height: 22),
             const Text('Shop by category', style: AppTypography.sectionTitle),

@@ -26,7 +26,7 @@ class FarmerHomeScreen extends ConsumerStatefulWidget {
 class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
   late final Future<List<Listing>> _listingsFuture;
   late final Future<List<Order>> _ordersFuture;
-  late final Future<AppUser?> _userFuture;
+  late final Stream<AppUser?> _userStream;
 
   @override
   void initState() {
@@ -34,7 +34,14 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
     final farmerId = FirebaseAuth.instance.currentUser?.uid ?? 'local-farmer';
     _listingsFuture = ref.read(listingServiceProvider).listForFarmer(farmerId);
     _ordersFuture = ref.read(orderServiceProvider).listFarmerOrders(farmerId);
-    _userFuture = FirestoreUserRepository().getById(farmerId).catchError((_) => null);
+    // A one-shot Future here would freeze on whatever currentUser was at
+    // this exact moment — null/stale if auth state hadn't settled yet —
+    // and never retry. A stream that follows auth state changes fixes
+    // that race (see the same fix in consumer_home_screen.dart).
+    final userRepository = FirestoreUserRepository();
+    _userStream = FirebaseAuth.instance.authStateChanges().asyncExpand(
+          (user) => user == null ? Stream.value(null) : userRepository.stream(user.uid),
+        );
   }
 
   @override
@@ -52,8 +59,8 @@ class _FarmerHomeScreenState extends ConsumerState<FarmerHomeScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          FutureBuilder<AppUser?>(
-            future: _userFuture,
+          StreamBuilder<AppUser?>(
+            stream: _userStream,
             builder: (context, snapshot) {
               final name = snapshot.data?.name ?? 'Farmer';
               return Text('Namaste, $name!', style: AppTypography.screenTitle);
