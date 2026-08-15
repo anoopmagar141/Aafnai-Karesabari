@@ -21,6 +21,8 @@ import '../../../shared/components/market_price_gauge.dart';
 import '../../../shared/components/product_card.dart';
 import '../../../shared/components/search_bar.dart';
 
+/// Buyer's Home tab: location header, search entry point, category
+/// shortcuts, a market-price reference gauge, and fresh nearby listings.
 class ConsumerHomeScreen extends ConsumerStatefulWidget {
   const ConsumerHomeScreen({super.key});
 

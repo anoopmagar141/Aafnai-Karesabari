@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Small null-safe converters between Dart types and Firestore's wire
+/// format (Timestamp, num), used by every model's `fromMap`/`toFirestore`.
+///
 /// Converts a non‑null Firestore [Timestamp] to a [DateTime].
 DateTime timestampFromFirestoreRequired(Object? timestamp) =>
     (timestamp as Timestamp).toDate();

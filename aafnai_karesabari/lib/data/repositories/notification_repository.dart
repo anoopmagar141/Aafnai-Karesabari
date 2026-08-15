@@ -35,6 +35,8 @@ class NotificationListFilter {
   final int? limit;
 }
 
+/// CRUD + filtered listing for in-app notifications, plus a live unread
+/// count used for the notification bell badge.
 abstract class NotificationRepository {
   Future<AppNotification> create(AppNotification notification);
   Future<void> update(AppNotification notification);

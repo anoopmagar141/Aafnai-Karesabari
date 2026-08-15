@@ -14,6 +14,9 @@ import '../../../features/onboarding/onboarding_controller.dart';
 import '../../../routing/app_router.dart';
 import '../../../shared/components/confirmation_dialog.dart';
 
+/// The "Profile" tab: account summary, quick actions, seller-mode
+/// switch/apply-to-sell, admin dashboard link, and the Settings bottom
+/// sheet (opened via the gear icon) with sign-out.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 

@@ -7,6 +7,8 @@ import '../../../data/models/order.dart';
 import '../../../data/services/order_service.dart';
 import '../../../shared/components/order_card.dart';
 
+/// "My Orders" for buyers: every order they've placed, with status
+/// badges and access to the buyer's "I've received my order" action.
 class OrderTrackingScreen extends ConsumerStatefulWidget {
   const OrderTrackingScreen({super.key});
 

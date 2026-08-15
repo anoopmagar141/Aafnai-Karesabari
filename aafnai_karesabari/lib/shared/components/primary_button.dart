@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/spacing.dart';
 
+/// The app's standard full-width filled action button (green, primary
+/// call-to-action). See [SecondaryButton] for the outlined variant.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({super.key, required this.label, required this.onPressed});
   final String label;

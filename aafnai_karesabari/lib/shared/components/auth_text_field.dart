@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Styled text input used throughout the auth/profile forms, wrapping
+/// [TextFormField] with the app's consistent label/border/icon look.
 class AuthTextField extends StatelessWidget {
   const AuthTextField({
     super.key,

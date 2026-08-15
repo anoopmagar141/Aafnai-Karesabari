@@ -37,6 +37,8 @@ class CartItemSummary {
   final Listing listing;
 }
 
+/// Add/update/remove items in the buyer's local basket and compute its
+/// total (honoring any negotiated offer price per item).
 class CartService {
   CartService({CartRepository? repository, ListingRepository? listingRepository})
       : _repository = repository ?? ResilientCartRepository(),

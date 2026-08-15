@@ -8,6 +8,9 @@ import 'app.dart';
 import 'core/firebase/firebase_bootstrap.dart';
 import 'data/services/notification_service.dart';
 
+/// App entry point: initializes Firebase, then launches [AafnaiKaresabariApp].
+/// Every step is resilient by design — see the inline comments below for
+/// why Firebase failures and notification registration never block launch.
 Future<void> main() async {
   debugPrint('[${DateTime.now().toIso8601String()}] main start');
   WidgetsFlutterBinding.ensureInitialized();

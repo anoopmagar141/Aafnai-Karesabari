@@ -9,6 +9,9 @@ import '../../../data/services/listing_service.dart';
 import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/product_card.dart';
 
+/// A public storefront view of one farmer: their info plus a grid of
+/// their active listings, reached by tapping a seller's name anywhere
+/// in the app.
 class FarmerProfileScreen extends ConsumerStatefulWidget {
   const FarmerProfileScreen({super.key, required this.farmerId});
 

@@ -4,6 +4,9 @@ import '../../utils/firestore_helpers.dart';
 
 enum OrderStatus { pending, accepted, rejected, cancelled, completed }
 
+/// A placed order for one listing: quantity, price actually paid (which
+/// may be a negotiated offer — see [isNegotiated]), and its status through
+/// the pending → accepted → completed lifecycle.
 class Order {
   const Order({
     required this.id,

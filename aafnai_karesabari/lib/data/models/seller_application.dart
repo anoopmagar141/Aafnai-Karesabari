@@ -4,6 +4,8 @@ import 'firestore_helpers.dart';
 
 enum SellerApplicationStatus { pending, approved, rejected }
 
+/// A buyer's request to become a seller, reviewed by an admin on
+/// [SellerApplicationsScreen]. Approval flips the user's `sellerStatus`.
 class SellerApplication {
   const SellerApplication({
     required this.id,

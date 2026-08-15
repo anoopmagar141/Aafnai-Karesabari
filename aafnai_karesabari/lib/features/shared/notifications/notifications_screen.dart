@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/app_notification.dart';
 import '../../../data/services/notification_service.dart';
 
+/// Full list of a user's notifications (tap the Home bell icon to get
+/// here), with a mark-as-read action per item.
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 

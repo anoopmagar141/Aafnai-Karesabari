@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'primary_button.dart';
 
+/// Star-rating + comment input for leaving a review, used by
+/// [ReviewsScreen].
 class ReviewInput extends StatefulWidget {
   const ReviewInput({
     super.key,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Named text styles (titles, body, price, button) reused across screens
+/// instead of each widget defining its own font size/weight.
 abstract final class AppTypography {
   static const screenTitle = TextStyle(fontSize: 26, fontWeight: FontWeight.w800, height: 1.2);
   static const sectionTitle = TextStyle(fontSize: 20, fontWeight: FontWeight.w700, height: 1.3);

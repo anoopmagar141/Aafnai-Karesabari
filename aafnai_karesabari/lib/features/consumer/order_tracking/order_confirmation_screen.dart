@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/components/primary_button.dart';
 import '../../../routing/app_routes.dart';
 
+/// A simple "your order was placed" success screen shown right after
+/// checkout completes.
 class OrderConfirmationScreen extends StatelessWidget {
   const OrderConfirmationScreen({super.key});
 

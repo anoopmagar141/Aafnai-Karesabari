@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+/// One line item in a buyer's basket: which listing, how many units,
+/// and the negotiated price if they made an offer.
 class CartEntry {
   const CartEntry({
     required this.listingId,

@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 enum OtpValidationResult { verified, invalid, expired, tooManyAttempts, unavailable }
 
+/// Generates and verifies a login OTP, storing it in Firestore and
+/// displaying it directly in the UI for development/demo purposes — see
+/// the PRODUCTION note below for what replaces this before a real launch.
 class SimulatedOtpService {
   SimulatedOtpService({FirebaseFirestore? firestore, FirebaseAuth? auth})
       : _firestore = firestore ?? FirebaseFirestore.instance,

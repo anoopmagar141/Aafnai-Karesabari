@@ -8,6 +8,8 @@ import '../repositories/review_repository.dart';
 
 final reviewServiceProvider = Provider<ReviewService>((ref) => ReviewService());
 
+/// Creates a buyer's review for a completed order, enforcing that only
+/// the actual buyer of a delivered order can review it once.
 class ReviewService {
   ReviewService({
     ReviewRepository? reviewRepository,

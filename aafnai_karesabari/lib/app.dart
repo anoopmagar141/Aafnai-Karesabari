@@ -5,6 +5,8 @@ import 'core/theme/app_theme.dart';
 import 'routing/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// The app's root widget: sets up the Riverpod [ProviderScope], the
+/// Material theme, GoRouter, and English/Nepali localization.
 class AafnaiKaresabariApp extends StatelessWidget {
   const AafnaiKaresabariApp({super.key});
 

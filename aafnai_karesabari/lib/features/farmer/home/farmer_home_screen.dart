@@ -16,6 +16,8 @@ import '../../../shared/components/earnings_card.dart';
 import '../../../shared/components/order_card.dart';
 import '../../../shared/components/product_card.dart';
 
+/// Farmer's Home tab: a dashboard summary of earnings, listings, and
+/// recent orders, plus a switch back to the buyer view.
 class FarmerHomeScreen extends ConsumerStatefulWidget {
   const FarmerHomeScreen({super.key});
 

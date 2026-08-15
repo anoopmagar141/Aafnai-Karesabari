@@ -9,6 +9,9 @@ import '../../../data/services/listing_service.dart';
 import '../../../data/services/order_service.dart';
 import '../../../shared/components/primary_button.dart';
 
+/// One order's full detail, shared by buyer and seller views
+/// (`farmerView` picks which). Hosts the buyer's "I've received my
+/// order" confirmation action, which unlocks leaving a review.
 class OrderDetailScreen extends ConsumerStatefulWidget {
   const OrderDetailScreen({super.key, required this.orderId, required this.farmerView});
 

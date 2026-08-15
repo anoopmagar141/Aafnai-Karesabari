@@ -6,6 +6,8 @@ import '../../../data/models/app_user.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../onboarding/onboarding_controller.dart';
 
+/// Admin user directory: search every platform user and grant/revoke
+/// admin access or seller privileges.
 class AdminUsersScreen extends ConsumerStatefulWidget {
   const AdminUsersScreen({super.key});
 

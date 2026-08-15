@@ -7,6 +7,7 @@ import '../../../routing/app_router.dart';
 import '../../../shared/components/auth_text_field.dart';
 import '../../../shared/components/primary_button.dart';
 
+/// Sends a Firebase password-reset email to the address the user enters.
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 

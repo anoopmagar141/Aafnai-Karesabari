@@ -14,6 +14,8 @@ import '../../../shared/components/primary_button.dart';
 import '../../../shared/components/secondary_button.dart';
 import 'add_listing_controller.dart';
 
+/// Create/edit form for a farmer's listing: product info, pricing, and
+/// the optional bargaining (minimum offer price) toggle.
 class ListingFormScreen extends ConsumerStatefulWidget {
   const ListingFormScreen({super.key, this.listingId});
 

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../routing/app_router.dart';
 import '../onboarding_controller.dart';
 
+/// First-run (or "Get started") language picker — English or Nepali —
+/// persisted via [OnboardingController].
 class LanguageSelectScreen extends StatelessWidget {
   const LanguageSelectScreen({super.key});
 

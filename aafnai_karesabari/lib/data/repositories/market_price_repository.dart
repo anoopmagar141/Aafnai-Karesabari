@@ -15,6 +15,8 @@ class MarketPriceListFilter {
   final int? limit;
 }
 
+/// CRUD + filtered listing for reference market prices, shown on the
+/// buyer Home screen's price gauge.
 abstract class MarketPriceRepository {
   Future<MarketPrice> create(MarketPrice price);
   Future<void> update(MarketPrice price);

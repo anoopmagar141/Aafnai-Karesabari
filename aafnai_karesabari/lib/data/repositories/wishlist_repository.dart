@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// A buyer's saved-for-later listings, stored as a `wishlist` subcollection
+/// under their own `users/{uid}` document.
 abstract class WishlistRepository {
   /// Returns a stream of listing IDs in the user's wishlist.
   Stream<List<String>> watchWishlist(String uid);

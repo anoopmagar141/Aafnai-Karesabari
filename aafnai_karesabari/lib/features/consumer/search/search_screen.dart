@@ -11,6 +11,9 @@ import '../../../shared/components/error_state.dart';
 import '../../../shared/components/product_card.dart';
 import '../../../shared/components/search_bar.dart';
 
+/// Live search + category filtering over real active listings (not demo
+/// data — see the note in [_loadListings] for why that distinction
+/// matters here).
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key, this.initialCategory});
   final ListingCategory? initialCategory;

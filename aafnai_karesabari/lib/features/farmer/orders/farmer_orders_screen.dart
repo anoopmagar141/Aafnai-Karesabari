@@ -4,9 +4,13 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/colors.dart';
 import '../../../data/models/order.dart';
+import '../../../data/repositories/user_repository.dart';
 import '../../../data/services/order_service.dart';
 import 'update_order_status_dialog.dart';
 
+/// Farmer's incoming orders: accept/reject/cancel via [OrderService] (so
+/// the buyer's status-change notification always fires) and see any
+/// negotiated offer next to the listing's normal price.
 class FarmerOrdersScreen extends StatefulWidget {
   const FarmerOrdersScreen({super.key});
 
@@ -226,13 +230,19 @@ class _FarmerOrdersScreenState extends State<FarmerOrdersScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Buyer ID',
+                        'Buyer',
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        order.consumerId,
-                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      FutureBuilder(
+                        future: FirestoreUserRepository().getById(order.consumerId),
+                        builder: (context, snapshot) {
+                          final name = snapshot.data?.name;
+                          return Text(
+                            name != null && name.isNotEmpty ? name : 'Buyer ${order.consumerId.substring(0, 8)}',
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          );
+                        },
                       ),
                     ],
                   ),

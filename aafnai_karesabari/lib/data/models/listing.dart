@@ -10,6 +10,9 @@ enum ListingUnit { kg, piece }
 
 enum ListingStatus { active, soldOut, draft }
 
+/// A product a farmer has for sale: price, quantity, category, and
+/// (if [acceptsBargaining] is true) a minimum price buyers may offer
+/// instead of paying the listed [pricePerUnit].
 class Listing {
   const Listing({
     required this.id,

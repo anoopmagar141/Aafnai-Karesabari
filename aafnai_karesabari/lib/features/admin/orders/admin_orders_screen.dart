@@ -11,6 +11,8 @@ import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/error_state.dart';
 import '../../../shared/components/status_badge.dart';
 
+/// Cross-seller order oversight for admins: every order on the platform,
+/// filterable by status, with a force-cancel action for dispute handling.
 class AdminOrdersScreen extends ConsumerStatefulWidget {
   const AdminOrdersScreen({super.key});
 

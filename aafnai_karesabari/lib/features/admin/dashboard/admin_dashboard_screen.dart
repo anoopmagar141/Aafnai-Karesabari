@@ -11,6 +11,8 @@ import '../../../data/repositories/seller_application_repository.dart';
 import '../../../data/models/seller_application.dart';
 import '../../../data/services/listing_seed_service.dart';
 
+/// Admin landing page: platform stats and quick-action links to seller
+/// verification, user management, catalog seeding, and order oversight.
 class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
 

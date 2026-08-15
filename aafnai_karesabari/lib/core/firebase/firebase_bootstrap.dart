@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 
 import '../../firebase_options.dart';
 
+/// One-time Firebase startup, called from `main()` before `runApp()`.
+/// Tolerates the app already being initialized natively (Android) and
+/// never lets a Firebase failure block the app from launching.
 abstract final class FirebaseBootstrap {
   static Future<void> initialize() async {
     // On Android, google-services.json + the Google Services Gradle plugin

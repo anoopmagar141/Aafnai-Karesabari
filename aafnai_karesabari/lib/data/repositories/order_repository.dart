@@ -17,6 +17,9 @@ class OrderListFilter {
   final int? limit;
 }
 
+/// CRUD + filtered listing for orders. Business rules (price validation,
+/// notifications on status change) live in [OrderService], not here —
+/// this layer only talks to Firestore/local storage.
 abstract class OrderRepository {
   Future<Order> create(Order order);
   Future<void> update(Order order);

@@ -13,6 +13,8 @@ import '../../../shared/components/primary_button.dart';
 import '../onboarding_controller.dart';
 import '../profile_setup/profile_setup_screen.dart' show kMinimumAge;
 
+/// New-account sign-up form: creates the Firebase Auth user and their
+/// initial `users/{uid}` profile document.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 

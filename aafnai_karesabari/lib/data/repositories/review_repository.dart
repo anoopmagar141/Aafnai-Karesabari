@@ -17,6 +17,7 @@ class ReviewListFilter {
   final int? limit;
 }
 
+/// CRUD + filtered listing for buyer reviews of completed orders.
 abstract class ReviewRepository {
   Future<Review> create(Review review);
   Future<void> update(Review review);

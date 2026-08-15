@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firestore_helpers.dart';
 
+/// A buyer's star rating + optional comment for a completed order,
+/// left only after the buyer confirms receipt (see [Order.canBeReviewed]).
 class Review {
   const Review({
     required this.id,

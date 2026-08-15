@@ -12,6 +12,8 @@ final sellerApplicationServiceProvider = Provider<SellerApplicationService>((ref
   );
 });
 
+/// Submits a buyer's seller application and lets an admin approve/reject
+/// it, flipping the applicant's `AppUser.sellerStatus` on decision.
 class SellerApplicationService {
   SellerApplicationService({
     required SellerApplicationRepository applicationRepository,

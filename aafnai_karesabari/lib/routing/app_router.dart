@@ -39,6 +39,9 @@ import '../features/admin/users/admin_users_screen.dart';
 
 export 'app_routes.dart';
 
+/// The app's single GoRouter instance: every screen's route registration,
+/// plus the bottom-nav shell wrapping the buyer/seller tab screens.
+/// Access control on each route is enforced by [resolveRedirectPath].
 GoRouter? _appRouter;
 
 GoRouter get appRouter => _appRouter ??= GoRouter(
@@ -158,6 +161,8 @@ GoRouter get appRouter => _appRouter ??= GoRouter(
   ],
 );
 
+/// Wraps a tab's screen with the bottom nav bar, showing buyer or
+/// seller destinations depending on [farmer].
 class _RoleShell extends StatelessWidget {
   const _RoleShell({required this.farmer, required this.child});
   final bool farmer;

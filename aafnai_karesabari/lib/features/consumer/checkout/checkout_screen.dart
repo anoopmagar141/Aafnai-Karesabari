@@ -11,6 +11,8 @@ import '../../../routing/app_routes.dart';
 import '../../../data/services/cart_service.dart';
 import '../../../data/services/order_service.dart';
 
+/// Final step of buying: confirms delivery details and converts the
+/// cart into real orders via [OrderService.createOrdersForCart].
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 

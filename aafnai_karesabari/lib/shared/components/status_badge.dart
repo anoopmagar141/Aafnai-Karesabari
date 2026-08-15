@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// A small colored pill label, used for order/application status
+/// indicators throughout the app.
 class StatusBadge extends StatelessWidget {
   const StatusBadge({super.key, required this.label, required this.color});
   final String label;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// The app's brand color palette. Referenced everywhere instead of
+/// hardcoding hex values so the look stays consistent and easy to retheme.
 abstract final class AppColors {
   static const primary = Color(0xFF2E7D32);
   static const accent = Color(0xFFFF9800);

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/services/cart_service.dart';
 
+/// The bottom tab bar shown on every main screen, with a buyer set of
+/// tabs (Home/Search/Wishlist/Cart/Orders/Profile) or a seller set
+/// depending on [farmer]; the Cart tab shows a live item-count badge.
 class AppBottomNavBar extends ConsumerWidget {
   const AppBottomNavBar({super.key, required this.farmer, required this.index, required this.onChanged});
 

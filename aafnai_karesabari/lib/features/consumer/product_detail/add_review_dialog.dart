@@ -7,6 +7,8 @@ import '../../../data/models/order.dart';
 import '../../../data/repositories/order_repository.dart';
 import '../../../data/services/review_service.dart';
 
+/// Dialog letting a buyer pick one of their completed orders with a
+/// given farmer and leave a star rating + comment for it.
 class AddReviewDialog extends ConsumerStatefulWidget {
   final String farmerId;
   final VoidCallback onReviewAdded;

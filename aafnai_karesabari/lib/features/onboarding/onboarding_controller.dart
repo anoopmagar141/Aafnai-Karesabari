@@ -11,6 +11,10 @@ import '../../data/repositories/user_repository.dart';
 
 enum AuthStatus { unauthenticated, authenticated }
 
+/// App-wide auth/onboarding state — tracks the signed-in user, their
+/// language preference, and profile completeness — and drives
+/// [resolveRedirectPath] (the GoRouter guard) so every screen redirect
+/// decision is made from one source of truth.
 class OnboardingController extends ChangeNotifier {
   OnboardingController({
     FirebaseAuth? auth,

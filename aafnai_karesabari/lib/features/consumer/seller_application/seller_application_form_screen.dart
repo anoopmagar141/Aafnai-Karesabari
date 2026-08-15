@@ -13,6 +13,8 @@ import '../../../shared/components/primary_button.dart';
 import '../../onboarding/onboarding_controller.dart';
 import '../../onboarding/profile_setup/profile_setup_screen.dart' show kMinimumAge;
 
+/// The "become a seller" form a buyer fills out to apply; submission
+/// creates a pending [SellerApplication] for an admin to review.
 class SellerApplicationFormScreen extends ConsumerStatefulWidget {
   const SellerApplicationFormScreen({super.key});
 

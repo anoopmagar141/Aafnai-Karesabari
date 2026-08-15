@@ -24,6 +24,9 @@ class ListingValidationException implements Exception {
   String toString() => result.errors.values.join('\n');
 }
 
+/// Validates and persists a farmer's product listing (price, quantity,
+/// bargaining rules), delegating storage to [ListingRepository] with a
+/// local fallback when Firestore is unreachable.
 class ListingService {
   ListingService({
     ListingRepository? firestoreRepository,

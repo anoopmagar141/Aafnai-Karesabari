@@ -13,6 +13,8 @@ import '../../../shared/components/primary_button.dart';
 import '../../../shared/components/status_badge.dart';
 import 'ratings_section.dart';
 
+/// Single-listing detail page: full info, add-to-basket, and (when the
+/// listing accepts bargaining) a "make an offer" form for a lower price.
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productId});
 

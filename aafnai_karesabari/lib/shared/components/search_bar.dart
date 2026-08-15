@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 
+/// The app's search input, used two ways: read-only + `onTap` on Home
+/// (taps navigate to Search) or live-filtering with `controller`/
+/// `onChanged` on the Search screen itself.
 class AppSearchBar extends StatelessWidget {
   const AppSearchBar({
     super.key,

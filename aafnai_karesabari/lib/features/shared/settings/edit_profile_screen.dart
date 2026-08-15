@@ -8,6 +8,8 @@ import '../../../data/repositories/user_repository.dart';
 import '../../../shared/components/primary_button.dart';
 import '../../onboarding/profile_setup/profile_setup_screen.dart' show kMinimumAge;
 
+/// Edit form for the signed-in user's own profile fields (name, phone,
+/// location, and — for sellers — business info).
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 

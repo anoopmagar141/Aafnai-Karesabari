@@ -14,6 +14,9 @@ final wishlistNotifierProvider =
   return WishlistNotifier(ref.watch(wishlistRepositoryProvider));
 });
 
+/// Keeps the signed-in buyer's wishlist (a list of listing IDs) in sync
+/// with Firestore, automatically re-subscribing when the user signs
+/// in/out.
 class WishlistNotifier extends StateNotifier<List<String>> {
   WishlistNotifier(this._repository) : super(const []) {
     _subscribeToAuthChanges();

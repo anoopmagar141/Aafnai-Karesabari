@@ -4,6 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/cart_entry.dart';
 
+/// Persists the buyer's basket to secure on-device storage (not
+/// Firestore — the cart is local until checkout creates real orders).
 abstract class CartRepository {
   Future<List<CartEntry>> loadCart();
   Future<void> saveCart(List<CartEntry> entries);

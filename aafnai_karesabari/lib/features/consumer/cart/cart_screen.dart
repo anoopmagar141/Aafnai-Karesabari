@@ -8,6 +8,8 @@ import '../../../routing/app_routes.dart';
 import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/primary_button.dart';
 
+/// Buyer's basket: review/adjust items (showing any negotiated offer
+/// price vs. the listed price) before proceeding to checkout.
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 

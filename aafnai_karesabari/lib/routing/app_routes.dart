@@ -1,5 +1,7 @@
 import '../features/onboarding/onboarding_controller.dart';
 
+/// Every named route path in the app, used instead of hardcoded strings
+/// so a typo becomes a compile error rather than a silent bad navigation.
 abstract final class AppRoutes {
   static const landing = '/';
   static const splash = '/splash';
@@ -26,6 +28,10 @@ abstract final class AppRoutes {
   static const adminUsers = '/admin/users';
 }
 
+/// GoRouter's redirect guard: given the path being navigated to and the
+/// current [OnboardingController] state, returns where to send the user
+/// instead (language gate, login, profile setup, role-restricted areas),
+/// or null to allow the navigation as requested.
 String? resolveRedirectPath({
   required String path,
   required OnboardingController onboardingController,

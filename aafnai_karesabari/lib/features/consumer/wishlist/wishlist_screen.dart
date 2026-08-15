@@ -10,6 +10,7 @@ import '../../../shared/components/empty_state.dart';
 import '../../../shared/components/error_state.dart';
 import '../../../shared/components/product_card.dart';
 
+/// Buyer's saved-for-later listings, backed by [WishlistNotifier].
 class WishlistScreen extends ConsumerStatefulWidget {
   const WishlistScreen({super.key});
 

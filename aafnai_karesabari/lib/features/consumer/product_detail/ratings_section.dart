@@ -8,6 +8,8 @@ import '../../../data/models/review.dart';
 import '../../../data/services/review_service.dart';
 import 'add_review_dialog.dart';
 
+/// Shows a farmer's reviews on the product detail page, with an entry
+/// point ([AddReviewDialog]) for a buyer to leave their own.
 class RatingsSection extends ConsumerStatefulWidget {
   final String farmerId;
   final String productId;

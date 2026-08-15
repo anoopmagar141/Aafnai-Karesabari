@@ -17,6 +17,10 @@ final unreadNotificationCountProvider = StreamProvider<int>((ref) {
   return ref.watch(notificationServiceProvider).streamUnreadCount(uid);
 });
 
+/// Creates/lists/marks-read in-app notifications, and streams the
+/// unread count for the notification bell badge. Falls back to a local
+/// cache if Firestore fails, logging the real error so that fallback
+/// doesn't silently hide a genuine bug (e.g. a missing index).
 class NotificationService {
   NotificationService({
     NotificationRepository? notificationRepository,

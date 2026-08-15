@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../utils/firestore_helpers.dart';
 
+/// A daily low/average/high market price for a product in a region,
+/// shown on the buyer Home screen as a reference price gauge.
 class MarketPrice {
   const MarketPrice({
     required this.id,

@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/app_user.dart';
 import 'firestore_repository.dart';
 
+/// CRUD for `users/{uid}` profile documents — identity, role, and
+/// seller-approval state that the rest of the app reads via [AppUser].
 abstract class UserRepository {
   Future<AppUser> create(AppUser user);
   Future<void> update(AppUser user);

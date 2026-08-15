@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/colors.dart';
 
+/// Visual low/average/high price gauge for a product+region, shown on
+/// the buyer Home screen.
 class MarketPriceGauge extends StatelessWidget {
   const MarketPriceGauge({
     super.key,

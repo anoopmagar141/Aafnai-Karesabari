@@ -10,6 +10,8 @@ enum NotificationType {
   orderDelivered,
 }
 
+/// An in-app notification for one user (new order, order accepted, etc.),
+/// shown on [NotificationsScreen] and counted for the unread bell badge.
 class AppNotification {
   const AppNotification({
     required this.id,

@@ -12,6 +12,8 @@ import '../onboarding_controller.dart';
 
 const int kMinimumAge = 16;
 
+/// Required post-signup form (name, phone, date of birth, delivery
+/// location) that gates access to cart/checkout until completed.
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
   @override

@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'colors.dart';
 import 'spacing.dart';
 
+/// The app's single Material 3 [ThemeData], built from [AppColors] and
+/// [AppSpacing] so every screen shares one look instead of styling
+/// widgets ad hoc.
 abstract final class AppTheme {
   static final light = ThemeData(
     useMaterial3: true,

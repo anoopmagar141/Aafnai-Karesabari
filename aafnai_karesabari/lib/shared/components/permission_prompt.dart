@@ -1,2 +1,0 @@
-import 'package:flutter/material.dart';
-class PermissionPrompt extends StatelessWidget { const PermissionPrompt({super.key, required this.icon, required this.message, required this.onAllow}); final IconData icon; final String message; final VoidCallback onAllow; @override Widget build(BuildContext context) => AlertDialog(icon: Icon(icon), content: Text(message), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Don’t allow')), FilledButton(onPressed: onAllow, child: const Text('Allow'))]); }

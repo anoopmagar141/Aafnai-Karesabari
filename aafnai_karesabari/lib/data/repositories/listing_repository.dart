@@ -23,6 +23,9 @@ class ListingListFilter {
   final int? limit;
 }
 
+/// CRUD + filtered listing for a farmer's product listings. Firestore is
+/// the source of truth; [LocalListingRepository] backs it up when
+/// Firestore is unreachable (see [ListingService]).
 abstract class ListingRepository {
   Future<Listing> create(Listing listing);
   Future<void> update(Listing listing);

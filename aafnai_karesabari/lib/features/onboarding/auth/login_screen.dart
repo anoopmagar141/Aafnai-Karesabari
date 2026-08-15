@@ -9,6 +9,7 @@ import '../../../shared/components/auth_text_field.dart';
 import '../../../shared/components/primary_button.dart';
 import '../onboarding_controller.dart';
 
+/// Email/password login form for returning users.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 

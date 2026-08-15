@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 
+/// Standard "nothing here yet" placeholder (icon + title + subtitle)
+/// shown wherever a list legitimately has zero items.
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key, required this.icon, required this.title, required this.subtitle});
   final IconData icon;

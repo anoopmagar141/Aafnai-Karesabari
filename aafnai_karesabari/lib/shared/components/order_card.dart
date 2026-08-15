@@ -7,6 +7,9 @@ import '../../data/repositories/user_repository.dart';
 import '../../data/services/listing_service.dart';
 import 'status_badge.dart';
 
+/// Resolves an order's listing/person IDs to display names, then
+/// renders an [OrderCard]. Prefer this over [OrderCard] directly unless
+/// you already have the resolved names on hand.
 class OrderCardResolver extends ConsumerStatefulWidget {
   const OrderCardResolver({super.key, required this.order, this.farmerView = false});
   final Order order;
@@ -49,6 +52,8 @@ class _OrderCardResolverState extends ConsumerState<OrderCardResolver> {
   }
 }
 
+/// Order summary card: id, product, counterparty, total, and a status
+/// badge covering all 5 [OrderStatus] values.
 class OrderCard extends StatelessWidget {
   const OrderCard({
     super.key,

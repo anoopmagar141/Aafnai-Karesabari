@@ -5,6 +5,8 @@ import '../../../core/theme/colors.dart';
 import '../../../data/models/order.dart';
 import '../../../data/repositories/order_repository.dart';
 
+/// Farmer's completed-orders payout summary (each order's total minus
+/// the platform commission from [CommissionService]).
 class EarningsScreen extends StatelessWidget {
   const EarningsScreen({super.key});
 

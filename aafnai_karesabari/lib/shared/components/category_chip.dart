@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 
+/// A tappable category filter pill (icon + label), used on Home and
+/// Search.
 class CategoryChip extends StatelessWidget {
   const CategoryChip({super.key, required this.label, required this.icon});
   final String label;

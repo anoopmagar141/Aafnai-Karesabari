@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/colors.dart';
 import '../../../routing/app_router.dart';
 
+/// First screen a fresh (unauthenticated) visitor sees: branding plus
+/// "Get started" / "I already have an account" entry points.
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 

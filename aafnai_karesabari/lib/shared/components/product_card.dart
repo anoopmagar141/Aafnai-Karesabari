@@ -10,6 +10,8 @@ import '../../data/services/review_service.dart';
 import '../../data/services/wishlist_service.dart';
 import 'status_badge.dart';
 
+/// A listing's grid tile (Home, Search, Wishlist, Farmer Profile): photo
+/// icon, name, price, and a live rating badge computed from reviews.
 class ProductCard extends ConsumerWidget {
   const ProductCard({
     super.key,

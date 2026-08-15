@@ -3,6 +3,8 @@ import '../../../data/models/listing.dart';
 import '../../../data/services/listing_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// In-progress state for the create/edit listing form (see
+/// [ListingFormScreen]) before it's saved as a draft or published.
 class ListingDraft {
   const ListingDraft({
     this.listingId,
@@ -100,6 +102,8 @@ class ListingDraft {
   }
 }
 
+/// Drives the create/edit listing form: holds the draft, validates and
+/// saves it (as a draft or published) via [ListingService].
 class ListingDraftNotifier extends StateNotifier<ListingDraft> {
   ListingDraftNotifier(this._service) : super(const ListingDraft());
 

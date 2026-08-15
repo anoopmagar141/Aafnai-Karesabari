@@ -1,3 +1,5 @@
+/// Shared spacing and corner-radius scale used for padding, gaps, and
+/// rounded corners across the UI, so layouts stay visually consistent.
 abstract final class AppSpacing {
   static const xxs = 4.0;
   static const xs = 8.0;

@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../core/errors/app_exception.dart';
 
+/// Shared Firestore plumbing used by every `Firestore*Repository`: wraps
+/// calls so failures surface as [AppException] (letting services fall
+/// back to local data), and maps query/document snapshots to models.
 Future<T> runFirestore<T>(
   Future<T> Function() action, {
   String? message,

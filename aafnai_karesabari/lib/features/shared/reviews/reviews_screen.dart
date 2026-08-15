@@ -8,6 +8,8 @@ import '../../../data/services/order_service.dart';
 import '../../../data/services/review_service.dart';
 import '../../../shared/components/review_input.dart';
 
+/// A completed order's reviews, plus the form to leave one — reached
+/// from the buyer's order detail screen once the order is delivered.
 class ReviewsScreen extends ConsumerStatefulWidget {
   const ReviewsScreen({super.key, required this.orderId});
 

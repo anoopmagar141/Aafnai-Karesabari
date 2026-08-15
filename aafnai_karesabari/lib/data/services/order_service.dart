@@ -12,6 +12,10 @@ import 'commission_service.dart';
 
 final orderServiceProvider = Provider<OrderService>((ref) => OrderService(notificationService: ref.read(notificationServiceProvider)));
 
+/// Creates orders (server-side-validating any buyer price offer against
+/// the listing's minimum before honoring it) and updates order status,
+/// sending the buyer/seller notifications each transition implies —
+/// e.g. "your order is on the way" once a seller accepts.
 class OrderService {
   OrderService({
     OrderRepository? orderRepository,

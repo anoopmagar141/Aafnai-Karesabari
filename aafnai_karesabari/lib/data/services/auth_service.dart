@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+/// Thin wrapper around FirebaseAuth (sign up, sign in, sign out, current
+/// user), abstracted so screens don't call FirebaseAuth.instance directly.
 abstract class AuthService {
   Stream<User?> authStateChanges();
   User? get currentUser;

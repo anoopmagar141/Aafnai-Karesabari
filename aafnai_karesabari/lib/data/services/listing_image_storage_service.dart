@@ -19,6 +19,10 @@ Future<T> runStorage<T>(Future<T> Function() action, {String? message}) async {
   }
 }
 
+/// Uploads/replaces/deletes a listing's photo in Firebase Storage.
+/// Currently unused in practice — the app represents products with
+/// vector icons (see [iconForListing]) to stay within the free storage
+/// tier — but kept as the upload path if photo listings are added later.
 abstract class ListingImageStorageService {
   Future<String> upload({
     required String farmerId,

@@ -15,6 +15,8 @@ import '../../../shared/components/status_badge.dart';
 import 'add_listing_controller.dart';
 import 'update_inventory_dialog.dart';
 
+/// Farmer's product catalog: their own listings with quick actions to
+/// edit, update stock, or add a new one.
 class ListingsScreen extends ConsumerStatefulWidget {
   const ListingsScreen({super.key});
 

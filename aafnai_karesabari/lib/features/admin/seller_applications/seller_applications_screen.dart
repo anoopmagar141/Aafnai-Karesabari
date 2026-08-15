@@ -5,6 +5,8 @@ import '../../../data/repositories/seller_application_repository.dart';
 import '../../../data/services/seller_application_service.dart';
 import '../../onboarding/onboarding_controller.dart';
 
+/// Admin queue of pending seller applications, with approve/reject
+/// actions that flip the applicant's seller status.
 class SellerApplicationsScreen extends ConsumerWidget {
   const SellerApplicationsScreen({super.key});
 

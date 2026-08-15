@@ -8,6 +8,8 @@ final sellerApplicationRepositoryProvider = Provider<SellerApplicationRepository
   (ref) => FirestoreSellerApplicationRepository(),
 );
 
+/// CRUD + a live pending-applications stream, backing the admin Seller
+/// Verification queue.
 abstract class SellerApplicationRepository {
   Future<SellerApplication> createApplication(SellerApplication application);
   Future<SellerApplication?> getApplication(String id);

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Dialog for a farmer to quickly adjust a listing's stock quantity
+/// without opening the full edit form.
 class UpdateInventoryDialog extends StatefulWidget {
   final int currentQuantity;
   final String listingName;

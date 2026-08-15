@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 import 'trust_badge.dart';
 
+/// A compact farmer summary row (name, district) shown on the product
+/// detail page. NOTE: the "42 orders completed" trust badge is a static
+/// placeholder, not the farmer's real completed-order count.
 class FarmerCard extends StatelessWidget {
   const FarmerCard({super.key, required this.name, required this.district});
   final String name, district;

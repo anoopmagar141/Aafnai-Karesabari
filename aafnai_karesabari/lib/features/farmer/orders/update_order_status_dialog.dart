@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/order.dart';
 
+/// Dialog for a farmer to pick the order's next status from the set of
+/// valid transitions (pending→accepted/rejected, accepted→cancelled;
+/// "completed" is set only by the buyer confirming receipt).
 class UpdateOrderStatusDialog extends StatefulWidget {
   final Order order;
   final Function(OrderStatus newStatus) onStatusUpdate;

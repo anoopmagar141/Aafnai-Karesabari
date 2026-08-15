@@ -6,6 +6,9 @@ enum AppLanguage { ne, en }
 
 enum TrustBadgeType { newSeller, verified }
 
+/// A platform user's profile: identity, delivery/farm location, and role
+/// flags (`isAdmin`, `sellerStatus`) that gate access to the farmer and
+/// admin areas of the app.
 class AppUser {
   const AppUser({
     // Existing fields...

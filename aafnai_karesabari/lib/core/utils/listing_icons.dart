@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../data/models/listing.dart';
 
-/// Maps a listing to a representative Material vector icon based on its
-/// product name and category. No image assets or Storage uploads involved,
-/// which keeps the app within the Firebase free-tier storage quota.
+/// Picks a Material vector icon to represent a listing's product, so
+/// every listing has visual identity without uploading a photo.
+///
+/// Maps a listing to a representative icon based on its product name and
+/// category. No image assets or Storage uploads involved, which keeps the
+/// app within the Firebase free-tier storage quota.
 IconData iconForListing(String productName, ListingCategory category) {
   final name = productName.toLowerCase();
 
