@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/review.dart';
 import '../../../data/models/order.dart';
+import '../../../data/repositories/user_repository.dart';
 import '../../../data/services/order_service.dart';
 import '../../../data/services/review_service.dart';
 import '../../../shared/components/review_input.dart';
@@ -26,6 +27,8 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
   List<Review> _reviews = [];
   Order? _order;
   bool _alreadyReviewed = false;
+  String? _farmerName;
+  final Map<String, String> _reviewerNames = {};
 
   @override
   void initState() {
@@ -52,6 +55,22 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
       }
 
       final reviews = await ref.read(reviewServiceProvider).listReviews(orderId: widget.orderId);
+      if (!mounted) return;
+
+      final userRepo = FirestoreUserRepository();
+      try {
+        final farmer = await userRepo.getById(order.farmerId);
+        _farmerName = farmer?.name;
+      } catch (_) {}
+      for (final review in reviews) {
+        if (_reviewerNames.containsKey(review.consumerId)) continue;
+        try {
+          final reviewer = await userRepo.getById(review.consumerId);
+          if (reviewer?.name != null && reviewer!.name.isNotEmpty) {
+            _reviewerNames[review.consumerId] = reviewer.name;
+          }
+        } catch (_) {}
+      }
       if (!mounted) return;
 
       setState(() {
@@ -129,7 +148,7 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
                     const SizedBox(height: 8),
                     Text('Status: ${_order!.status.name}'),
                     const SizedBox(height: 8),
-                    Text('Farmer: ${_order!.farmerId}'),
+                    Text('Farmer: ${_farmerName ?? _order!.farmerId}'),
                     const SizedBox(height: 24),
                     if (!_order!.canBeReviewed)
                       const Text('Reviews are only available for completed orders.'),
@@ -174,7 +193,7 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
                                         if (review.comment != null && review.comment!.isNotEmpty)
                                           Text(review.comment!),
                                         const SizedBox(height: 8),
-                                        Text('By ${review.consumerId}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                                        Text('By ${_reviewerNames[review.consumerId] ?? review.consumerId}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                                         Text('Posted ${review.createdAt.toLocal()}'.split('.').first, style: const TextStyle(fontSize: 12, color: Colors.black45)),
                                       ],
                                     ),

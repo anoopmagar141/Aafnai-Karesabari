@@ -14,7 +14,14 @@ service cloud.firestore {
         && request.resource.data.activeRole == resource.data.activeRole;
     }
     match /users/{userId} {
-      allow read, create: if owns(userId) || isAdmin();
+      // Any signed-in user may fetch one specific profile by its known
+      // UID — needed to show a counterpart's name on an order, a
+      // review's author, or a farmer's storefront. This requires already
+      // knowing the exact UID (from an order/review/listing you can
+      // already see), so it doesn't allow browsing the user directory —
+      // that stays admin-only via `list` below.
+      allow get: if signedIn();
+      allow create: if owns(userId) || isAdmin();
       allow update: if isAdmin()
         || (owns(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'sellerStatus', 'activeRole']))
         || selfSellerApplication(userId);

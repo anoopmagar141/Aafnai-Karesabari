@@ -1,1 +1,29 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"aafnai-karesabari","appId":"1:986107011501:android:8afc37424bca5d31990124","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"aafnai-karesabari","configurations":{"android":"1:986107011501:android:8afc37424bca5d31990124","web":"1:986107011501:web:29478a09c3d59791990124"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "aafnai-karesabari",
+          "appId": "1:986107011501:android:8afc37424bca5d31990124",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "aafnai-karesabari",
+          "configurations": {
+            "android": "1:986107011501:android:8afc37424bca5d31990124",
+            "web": "1:986107011501:web:29478a09c3d59791990124"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
